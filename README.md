@@ -30,6 +30,11 @@ git clone https://github.com/chrispivonka/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ```
 
+**Note:** If you want to use this as a template for your own dotfiles:
+1. Fork this repository on GitHub
+2. Clone your fork instead: `git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles`
+3. Customize the dotfiles to your preferences
+
 ### 2. Bootstrap Your Environment (Optional)
 
 If you're setting up a new Mac, run the bootstrap script to install Homebrew and essential tools:
