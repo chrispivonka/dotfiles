@@ -1,0 +1,32 @@
+# =============================================================================
+# ripgrep configuration
+# =============================================================================
+
+# Smart case (case-insensitive unless uppercase is used)
+--smart-case
+
+# Follow symlinks
+--follow
+
+# Search hidden files (still respects .gitignore)
+--hidden
+
+# Exclude directories
+--glob=!.git/
+--glob=!node_modules/
+--glob=!.venv/
+--glob=!__pycache__/
+--glob=!.DS_Store
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!target/
+--glob=!dist/
+--glob=!build/
+--glob=!.next/
+
+# Truncate long lines
+--max-columns=200
+--max-columns-preview
+
+# Line numbers
+--line-number

@@ -1,0 +1,9 @@
+# Local overrides (contain personal/sensitive info)
+*.local
+*.local.conf
+
+# OS
+.DS_Store
+
+# Claude
+.claude/

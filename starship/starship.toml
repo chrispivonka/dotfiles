@@ -1,0 +1,159 @@
+# =============================================================================
+# Starship prompt — modern two-line prompt with Catppuccin Mocha palette
+# Docs: https://starship.rs/config/
+# =============================================================================
+
+palette = "catppuccin_mocha"
+
+format = """
+$os $directory$git_branch$git_status$python$nodejs$rust$golang$java$docker_context$aws$kubernetes$terraform$cmd_duration$character"""
+
+right_format = ""
+
+# --- OS icon -----------------------------------------------------------------
+[os]
+disabled = false
+style = "fg:subtext0"
+
+[os.symbols]
+Macos = ""
+Linux = "🐧"
+Ubuntu = ""
+Debian = ""
+
+# --- Character (prompt symbol) -----------------------------------------------
+[character]
+success_symbol = "[](bold lavender)"
+error_symbol = "[](bold red)"
+vimcmd_symbol = "[](bold green)"
+
+# --- Directory ---------------------------------------------------------------
+[directory]
+format = "[$path]($style)[$read_only]($read_only_style) "
+style = "bold blue"
+read_only = " 󰌾"
+read_only_style = "red"
+truncation_length = 4
+truncation_symbol = "…/"
+truncate_to_repo = true
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Projects" = " "
+
+# --- Git branch --------------------------------------------------------------
+[git_branch]
+format = "[$symbol$branch(:$remote_branch)]($style) "
+symbol = " "
+style = "bold mauve"
+truncation_length = 25
+
+# --- Git status --------------------------------------------------------------
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = "bold peach"
+conflicted = " ${count} "
+ahead = " ${count} "
+behind = " ${count} "
+diverged = "  ${ahead_count}  ${behind_count} "
+untracked = " ${count} "
+stashed = " ${count} "
+modified = " ${count} "
+staged = " ${count} "
+renamed = "󰑕 ${count} "
+deleted = " ${count} "
+
+# --- Languages ---------------------------------------------------------------
+[python]
+format = '[$symbol($version)]($style) '
+symbol = " "
+style = "yellow"
+
+[nodejs]
+format = '[$symbol($version)]($style) '
+symbol = " "
+style = "green"
+
+[rust]
+format = '[$symbol($version)]($style) '
+symbol = "󱘗 "
+style = "red"
+
+[golang]
+format = '[$symbol($version)]($style) '
+symbol = " "
+style = "teal"
+
+[java]
+format = '[$symbol($version)]($style) '
+symbol = " "
+style = "red"
+
+# --- Infrastructure ----------------------------------------------------------
+[docker_context]
+format = '[$symbol$context]($style) '
+symbol = " "
+only_with_files = true
+style = "blue"
+
+[aws]
+format = '[$symbol$profile(\($region\))]($style) '
+symbol = " "
+style = "yellow"
+
+[kubernetes]
+format = '[$symbol$context(\($namespace\))]($style) '
+symbol = "󱃾 "
+disabled = false
+style = "teal"
+detect_files = ["k8s"]
+detect_folders = ["k8s", ".kube"]
+
+[terraform]
+format = '[$symbol$workspace]($style) '
+symbol = "󱁢 "
+style = "mauve"
+
+# --- Command duration --------------------------------------------------------
+[cmd_duration]
+min_time = 2000
+format = '[ $duration]($style) '
+style = "yellow"
+show_milliseconds = false
+
+# --- Disabled (keep prompt fast) ---------------------------------------------
+[package]
+disabled = true
+
+[battery]
+disabled = true
+
+# --- Catppuccin Mocha Palette ------------------------------------------------
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
