@@ -109,10 +109,35 @@ alias dprune='docker system prune -af'
 alias dvol='docker volume ls'
 
 # --- Dev tools ---------------------------------------------------------------
-command -v htop &>/dev/null && alias top='htop'
+if command -v btm &>/dev/null; then
+    alias top='btm'
+elif command -v htop &>/dev/null; then
+    alias top='htop'
+fi
 command -v ncdu &>/dev/null && alias du='ncdu --color dark'
 command -v http &>/dev/null && alias https='http --default-scheme=https'
 command -v difft &>/dev/null && alias ddiff='difft'
+
+# yazi (terminal file manager) — cd's the shell to wherever you exit yazi in
+if command -v yazi &>/dev/null; then
+    function y() {
+        local tmp
+        tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+    }
+fi
+
+# television (fast fuzzy finder with curated channels) — complements fzf
+if command -v tv &>/dev/null; then
+    alias tvf='tv files'
+    alias tvg='tv git-log'
+    alias tvb='tv git-branch'
+    alias tvd='tv dirs'
+fi
 
 # --- Python ------------------------------------------------------------------
 alias py='python3'

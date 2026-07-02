@@ -78,6 +78,9 @@ Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses t
 | [mise](https://mise.jdx.dev/) | Per-project runtime version manager | `mise use node@22` |
 | [gitleaks](https://github.com/gitleaks/gitleaks) | Secret scanner, wired into global pre-commit + pre-push hooks | Blocks commits/pushes containing keys/tokens |
 | [1Password CLI](https://developer.1password.com/docs/cli/) | SSH agent + secrets from the terminal | `op signin` |
+| [yazi](https://github.com/sxyazi/yazi) | Terminal file manager with image previews | `y` (cd's your shell to wherever you exit) |
+| [television](https://github.com/alexpasmantier/television) | Fast fuzzy finder with curated channels | `tvf` files, `tvg` git log, `tvb` branches |
+| [bottom](https://github.com/ClementTsang/bottom) | Modern graphing process viewer | `top` (aliased, replaces htop) |
 
 ---
 

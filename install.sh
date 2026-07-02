@@ -80,6 +80,7 @@ install_packages_macos() {
         git-delta lazygit gh gitleaks
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
         atuin mise pinentry-mac 1password-cli
+        yazi television bottom
     )
 
     info "Installing packages via Homebrew..."
@@ -254,6 +255,45 @@ install_packages_debian() {
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | sudo tee /etc/apt/sources.list.d/1password.list >/dev/null
         sudo apt-get update -qq
         sudo apt-get install -y -qq 1password-cli
+    fi
+
+    # yazi — from GitHub releases
+    if ! command_exists yazi; then
+        info "Installing yazi..."
+        local arch_yz="x86_64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_yz="aarch64"; fi
+        local yz_ver
+        yz_ver=$(curl -sL https://api.github.com/repos/sxyazi/yazi/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+        curl -sLo /tmp/yazi.zip "https://github.com/sxyazi/yazi/releases/download/${yz_ver}/yazi-${arch_yz}-unknown-linux-gnu.zip"
+        unzip -qo /tmp/yazi.zip -d /tmp
+        sudo mv /tmp/yazi-${arch_yz}-unknown-linux-gnu/yazi /tmp/yazi-${arch_yz}-unknown-linux-gnu/ya /usr/local/bin/
+        rm -rf /tmp/yazi.zip /tmp/yazi-${arch_yz}-unknown-linux-gnu
+    fi
+
+    # television — from GitHub releases
+    if ! command_exists tv; then
+        info "Installing television..."
+        local arch_tv="x86_64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_tv="aarch64"; fi
+        local tv_ver
+        tv_ver=$(curl -sL https://api.github.com/repos/alexpasmantier/television/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+        curl -sLo /tmp/tv.tar.gz "https://github.com/alexpasmantier/television/releases/download/${tv_ver}/television-${tv_ver}-${arch_tv}-unknown-linux-gnu.tar.gz"
+        tar xzf /tmp/tv.tar.gz -C /tmp
+        sudo mv /tmp/tv /usr/local/bin/tv
+        rm -f /tmp/tv.tar.gz
+    fi
+
+    # bottom — from GitHub releases
+    if ! command_exists btm; then
+        info "Installing bottom..."
+        local arch_bt="x86_64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_bt="aarch64"; fi
+        local bt_ver
+        bt_ver=$(curl -sL https://api.github.com/repos/ClementTsang/bottom/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+        curl -sLo /tmp/bottom.tar.gz "https://github.com/ClementTsang/bottom/releases/download/${bt_ver}/bottom_${arch_bt}-unknown-linux-gnu.tar.gz"
+        tar xzf /tmp/bottom.tar.gz -C /tmp btm
+        sudo mv /tmp/btm /usr/local/bin/btm
+        rm -f /tmp/bottom.tar.gz
     fi
 
     # Nerd Fonts — download from GitHub releases
