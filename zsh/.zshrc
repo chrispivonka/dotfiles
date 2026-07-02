@@ -53,10 +53,8 @@ ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
 if [ -d "$ZINIT_HOME" ]; then
     source "${ZINIT_HOME}/zinit.zsh"
 
-    # Plugins
+    # Completion definitions must load before compinit runs
     zinit light zsh-users/zsh-completions
-    zinit light zsh-users/zsh-autosuggestions
-    zinit light zsh-users/zsh-syntax-highlighting  # must be last
 else
     echo "[dotfiles] zinit not found. Run install.sh to set up plugins."
 fi
@@ -81,6 +79,17 @@ zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'    # category 
 zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' complete-options true
 
+# fzf-tab: fuzzy tab-completion menu (must load before autosuggestions/syntax-highlighting)
+if [ -d "$ZINIT_HOME" ]; then
+    zinit light Aloxaf/fzf-tab
+    zstyle ':fzf-tab:*' fzf-flags --height=40% --layout=reverse
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons --group-directories-first -1 --color=always $realpath 2>/dev/null'
+    zstyle ':fzf-tab:*' switch-group ',' '.'
+
+    zinit light zsh-users/zsh-autosuggestions
+    zinit light zsh-users/zsh-syntax-highlighting  # must be last
+fi
+
 # Replay completions from zinit plugins
 command -v zinit &>/dev/null && zinit cdreplay -q
 
@@ -96,7 +105,13 @@ bindkey '^[f' forward-word                    # alt-right
 
 # --- FZF integration ---------------------------------------------------------
 if command -v fzf &>/dev/null; then
-    export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --info=inline'
+    # Catppuccin Mocha — https://github.com/catppuccin/fzf
+    export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --info=inline \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--color=selected-bg:#45475a \
+--color=border:#313244,label:#cdd6f4'
 
     # Use fd for file finding if available
     if command -v fd &>/dev/null; then
@@ -106,17 +121,29 @@ if command -v fzf &>/dev/null; then
     fi
 
     # Source fzf keybindings — path differs by OS
-    if [ -f "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh" ]; then
-        source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
-        source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
-    elif [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
-        source /usr/share/doc/fzf/examples/key-bindings.zsh
-        source /usr/share/doc/fzf/examples/completion.zsh
+    # Only when attached to a real TTY: fzf's scripts snapshot/restore all
+    # shell options (including the internal `zle` option), which zsh refuses
+    # to set explicitly outside a real terminal and prints a harmless but
+    # noisy "can't change option: zle" error.
+    if [ -t 1 ]; then
+        if [ -f "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh" ]; then
+            source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
+            source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
+        elif [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+            source /usr/share/doc/fzf/examples/key-bindings.zsh
+            source /usr/share/doc/fzf/examples/completion.zsh
+        fi
     fi
 fi
 
 # --- Zoxide (smarter cd) ----------------------------------------------------
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
+
+# --- Atuin (searchable shell history, local-only — see atuin/config.toml) ---
+command -v atuin &>/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
+
+# --- Mise (per-project runtime version manager) ------------------------------
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 # --- Ripgrep config ----------------------------------------------------------
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"

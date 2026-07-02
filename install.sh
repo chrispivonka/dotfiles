@@ -77,8 +77,9 @@ install_packages_macos() {
 
     local packages=(
         neovim tmux starship fzf ripgrep fd bat eza zoxide
-        git-delta lazygit
+        git-delta lazygit gh gitleaks
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
+        atuin mise pinentry-mac 1password-cli
     )
 
     info "Installing packages via Homebrew..."
@@ -106,7 +107,7 @@ install_packages_debian() {
     # Core packages available in default repos
     local apt_packages=(
         neovim tmux fzf ripgrep fd-find bat zoxide git curl wget unzip
-        tldr jq htop ncdu httpie tree shellcheck
+        tldr jq htop ncdu httpie tree shellcheck pinentry-curses gnupg
     )
     info "Installing core packages via apt..."
     sudo apt-get install -y -qq "${apt_packages[@]}"
@@ -208,6 +209,51 @@ install_packages_debian() {
         tar xzf /tmp/difft.tar.gz -C /tmp
         sudo mv /tmp/difft /usr/local/bin/difft
         rm -f /tmp/difft.tar.gz
+    fi
+
+    # GitHub CLI — official apt repo
+    if ! command_exists gh; then
+        info "Installing GitHub CLI..."
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+        sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq gh
+    fi
+
+    # gitleaks — from GitHub releases
+    if ! command_exists gitleaks; then
+        info "Installing gitleaks..."
+        local arch_gl="x64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_gl="arm64"; fi
+        local gl_ver
+        gl_ver=$(curl -sL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4 | sed 's/^v//')
+        curl -sLo /tmp/gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${gl_ver}/gitleaks_${gl_ver}_linux_${arch_gl}.tar.gz"
+        tar xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+        sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
+        rm -f /tmp/gitleaks.tar.gz
+    fi
+
+    # atuin — official installer
+    if ! command_exists atuin; then
+        info "Installing atuin..."
+        curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh -s -- --no-modify-path
+    fi
+
+    # mise — official installer
+    if ! command_exists mise; then
+        info "Installing mise..."
+        curl -sS https://mise.run | sh
+    fi
+
+    # 1Password CLI — official apt repo
+    if ! command_exists op; then
+        info "Installing 1Password CLI..."
+        curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor -o /usr/share/keyrings/1password-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | sudo tee /etc/apt/sources.list.d/1password.list >/dev/null
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq 1password-cli
     fi
 
     # Nerd Fonts — download from GitHub releases
@@ -343,6 +389,16 @@ create_symlinks() {
     link_file "$DOTFILES_DIR/nvim"                      "$HOME/.config/nvim"
     link_file "$DOTFILES_DIR/editorconfig/.editorconfig" "$HOME/.editorconfig"
     link_file "$DOTFILES_DIR/ripgrep/.ripgreprc"        "$HOME/.ripgreprc"
+    link_file "$DOTFILES_DIR/git/hooks"                 "$HOME/.githooks"
+    link_file "$DOTFILES_DIR/bin/tmux-sessionizer"      "$HOME/.local/bin/tmux-sessionizer"
+    link_file "$DOTFILES_DIR/bat/config"                "$HOME/.config/bat/config"
+
+    # lazygit's config dir differs by OS
+    if [ "$OS" = "macos" ]; then
+        link_file "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+    else
+        link_file "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
+    fi
 
     success "All symlinks created"
 }
@@ -370,12 +426,14 @@ install_tpm() {
     local tpm_dir="$HOME/.tmux/plugins/tpm"
     if [ -d "$tpm_dir" ]; then
         success "TPM already installed"
-        return
+    else
+        info "Installing TPM (Tmux Plugin Manager)..."
+        git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
     fi
 
-    info "Installing TPM (Tmux Plugin Manager)..."
-    git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
-    success "TPM installed — press prefix + I inside tmux to install plugins"
+    info "Installing tmux plugins declared in .tmux.conf..."
+    "$tpm_dir/bin/install_plugins" &>/dev/null || true
+    success "tmux plugins installed"
 }
 
 # -----------------------------------------------------------------------------

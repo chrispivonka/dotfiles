@@ -17,7 +17,7 @@ The install script:
 3. Installs Nerd Fonts (MesloLGS, JetBrains Mono, Fira Code)
 4. Extracts your existing git identity to `~/.gitconfig.local`
 5. Backs up existing dotfiles to `~/.dotfiles_backup/`
-6. Creates symlinks from `~` to the repo
+6. Creates symlinks from `~` to the repo, including global git hooks and the `tmux-sessionizer` script
 7. Installs zinit (zsh plugins), TPM (tmux plugins), and lazy.nvim (neovim plugins)
 
 Safe to run multiple times (idempotent).
@@ -30,13 +30,17 @@ Safe to run multiple times (idempotent).
 
 | Config | Description |
 |--------|-------------|
-| **zsh** | zinit, autosuggestions, syntax highlighting, completions, FZF integration |
-| **git** | Delta pager, useful aliases, histogram diffs, auto-rebase, rerere |
+| **zsh** | zinit, autosuggestions, syntax highlighting, fzf-tab fuzzy completion, atuin history, mise runtimes |
+| **git** | Delta pager (Catppuccin Mocha), useful aliases, histogram diffs, auto-rebase, rerere, SSH commit signing via 1Password, global hooks (secret/large-file/conflict-marker/whitespace guards, force-push protection) |
 | **starship** | Fast prompt with Catppuccin theme, git status, language versions |
-| **tmux** | Mouse, true color, vim keys, TPM, session persistence |
+| **tmux** | Mouse, true color, vim keys, TPM, session persistence, fuzzy project sessionizer, Catppuccin Mocha status bar |
 | **neovim** | lazy.nvim, LSP, telescope, treesitter, catppuccin theme |
+| **bat** | Catppuccin Mocha theme, line numbers + change markers |
+| **lazygit** | Catppuccin Mocha theme, delta as the diff pager |
 | **editorconfig** | Consistent formatting across editors |
 | **ripgrep** | Smart defaults for code search |
+
+Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux) uses the same **Catppuccin Mocha** palette for a consistent look end to end.
 
 ## Tools Installed
 
@@ -70,6 +74,10 @@ Safe to run multiple times (idempotent).
 | [hyperfine](https://github.com/sharkdp/hyperfine) | Command benchmarking | `hyperfine 'cmd1' 'cmd2'` |
 | [difftastic](https://difftastic.wilfred.me.uk/) | Syntax-aware structural diffs | `difft file1 file2` |
 | [gh](https://cli.github.com/) | GitHub CLI | `gh pr create` |
+| [atuin](https://atuin.sh/) | Searchable shell history (SQLite, local-only) | `Ctrl+R` fuzzy history search |
+| [mise](https://mise.jdx.dev/) | Per-project runtime version manager | `mise use node@22` |
+| [gitleaks](https://github.com/gitleaks/gitleaks) | Secret scanner, wired into global pre-commit + pre-push hooks | Blocks commits/pushes containing keys/tokens |
+| [1Password CLI](https://developer.1password.com/docs/cli/) | SSH agent + secrets from the terminal | `op signin` |
 
 ---
 
@@ -132,6 +140,17 @@ gtags     List tags (newest first)
 gclean    Remove untracked files
 lg        lazygit
 ```
+
+#### Git Hooks
+
+Global (`core.hooksPath = ~/.githooks`), so they apply to **every repo** on this machine, not just this one. Every check can be skipped for a single command with `--no-verify` if it's a false positive.
+
+| Hook | What it blocks |
+|------|-----------------|
+| `pre-commit` | Secrets (gitleaks), files over 5MB, credential-shaped filenames (`.env`, `*.pem`, `id_rsa`, ...), unresolved merge-conflict markers, trailing whitespace |
+| `commit-msg` | Obvious secrets/tokens pasted into the commit message itself |
+| `pre-push` | Force-pushes that rewrite `main`/`master`, secrets in outgoing commits |
+| `post-merge` | Nothing — just reminds you to reinstall deps when a manifest (`package.json`, `Gemfile.lock`, etc.) changed in the pull |
 
 #### Docker
 ```
@@ -240,10 +259,32 @@ mv        Prompts before overwrite (mv -i)
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl+R` | Search command history |
 | `Ctrl+T` | Search files (insert path) |
 | `Alt+C` | Search directories (cd into it) |
 | `**<Tab>` | Fuzzy completion (e.g., `vim **<Tab>`) |
+| `<Tab>` | fzf-tab fuzzy menu for any completion (cd, kill, git checkout, etc.) |
+
+---
+
+### Atuin (Shell History)
+
+Local-only — sync and update checks are disabled in `~/.config/atuin/config.toml`. Never run `atuin register`/`atuin login` on this machine or history starts leaving it.
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+R` | Fuzzy search history (atuin) |
+| `↑` / `↓` | Normal zsh history search (unchanged, atuin doesn't take over the arrow keys) |
+
+---
+
+### Mise (Runtime Versions)
+
+| Command | Action |
+|---------|--------|
+| `mise use node@22` | Pin Node 22 for the current project (writes `mise.toml`) |
+| `mise install` | Install versions pinned in `mise.toml`/`.tool-versions` |
+| `mise ls` | List installed runtime versions |
+| `mise doctor` | Diagnose activation/shims issues |
 
 ---
 
@@ -269,6 +310,7 @@ mv        Prompts before overwrite (mv -i)
 | `tmux a -t name` | Attach to session |
 | `prefix + d` | Detach |
 | `prefix + $` | Rename session |
+| `prefix + f` | Fuzzy-jump between `~/GitHub` projects (creates/switches session via `tmux-sessionizer`) |
 
 #### Windows
 | Key | Action |
@@ -464,12 +506,20 @@ tldr --update                         # Update local cache
 ```
 dotfiles/
 ├── install.sh              # Bootstrap + install script (macOS & Linux)
+├── bin/
+│   └── tmux-sessionizer    # -> ~/.local/bin/tmux-sessionizer
 ├── zsh/
 │   ├── .zshrc              # -> ~/.zshrc
 │   └── aliases.zsh         # Sourced from .zshrc
 ├── git/
 │   ├── .gitconfig          # -> ~/.gitconfig
-│   └── .gitignore_global   # -> ~/.gitignore_global
+│   ├── .gitignore_global   # -> ~/.gitignore_global
+│   └── hooks/              # -> ~/.githooks (core.hooksPath, applies to every repo)
+│       ├── pre-commit      # gitleaks, large-file guard, secret-filename guard,
+│       │                   # conflict-marker guard, whitespace check
+│       ├── commit-msg      # blocks obvious secrets/tokens pasted into the message
+│       ├── pre-push        # blocks force-push to main/master, gitleaks scan
+│       └── post-merge      # reminds you to reinstall deps after a manifest changes
 ├── starship/
 │   └── starship.toml       # -> ~/.config/starship.toml
 ├── tmux/

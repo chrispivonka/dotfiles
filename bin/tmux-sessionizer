@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Fuzzy-pick a project directory and jump to (or create) a tmux session for it.
+# Bound to `prefix + f` in tmux/.tmux.conf.
+set -euo pipefail
+
+search_paths=(
+    "$HOME/GitHub"
+)
+
+if [ $# -eq 1 ]; then
+    selected="$1"
+else
+    selected=$(find "${search_paths[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf)
+fi
+
+[ -z "${selected:-}" ] && exit 0
+
+selected_name=$(basename "$selected" | tr . _)
+
+if ! tmux has-session -t "$selected_name" 2>/dev/null; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+fi
+
+if [ -z "${TMUX:-}" ]; then
+    tmux attach-session -t "$selected_name"
+else
+    tmux switch-client -t "$selected_name"
+fi

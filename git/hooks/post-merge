@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Global post-merge hook (core.hooksPath) — applies to every repo on this machine.
+# Purely informational: reminds you to reinstall dependencies after a pull
+# changes a manifest file. Never blocks anything.
+changed=$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null || true)
+
+check() { echo "$changed" | grep -qx "$1" && echo "  [dotfiles] $1 changed — you may need: $2"; }
+
+check "package.json"        "npm install / pnpm install"
+check "package-lock.json"   "npm install"
+check "pnpm-lock.yaml"      "pnpm install"
+check "yarn.lock"           "yarn install"
+check "Gemfile.lock"        "bundle install"
+check "requirements.txt"    "pip install -r requirements.txt"
+check "poetry.lock"         "poetry install"
+check "mise.toml"           "mise install"
+check "go.sum"              "go mod download"
+check "Cargo.lock"          "cargo build"
+
+exit 0

@@ -12,6 +12,7 @@
     excludesfile = ~/.gitignore_global
     pager = delta
     whitespace = fix
+    hooksPath = ~/.githooks
 
 [filter "lfs"]
     clean = git-lfs clean -- %f
@@ -54,7 +55,7 @@
     navigate = true
     side-by-side = true
     line-numbers = true
-    syntax-theme = Dracula
+    syntax-theme = "Catppuccin Mocha"
 
 [rerere]
     enabled = true
@@ -84,3 +85,8 @@
     branches = branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]'
     cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
     aliases = config --get-regexp ^alias\\.
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+	allowedSignersFile = ~/.ssh/allowed_signers

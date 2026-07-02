@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Global commit-msg hook (core.hooksPath) — applies to every repo on this machine.
+# gitleaks scans the diff, not the message text, so this catches a key/token
+# accidentally pasted into the commit message itself.
+# Bypass with `git commit --no-verify` when a check is a false positive.
+set -euo pipefail
+
+msg_file="$1"
+
+pattern='(AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|xox[baprs]-[0-9A-Za-z-]+|sk-[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)'
+
+if grep -qE "$pattern" "$msg_file"; then
+    echo "error: commit message appears to contain a secret/token (git commit --no-verify to bypass)" >&2
+    exit 1
+fi
