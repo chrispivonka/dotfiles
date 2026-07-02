@@ -92,6 +92,17 @@ alias gtags='git tag -l --sort=-version:refname'
 # lazygit
 command -v lazygit &>/dev/null && alias lg='lazygit'
 
+# gh (GitHub CLI)
+if command -v gh &>/dev/null; then
+    alias ghpr='gh pr create'
+    alias ghprv='gh pr view --web'
+    alias ghprs='gh pr status'
+    alias ghis='gh issue list'
+fi
+
+# gitleaks — manual scan of the working tree (the same check the hooks run)
+command -v gitleaks &>/dev/null && alias leakscan='gitleaks detect --no-git --source . -v'
+
 # --- Docker aliases ----------------------------------------------------------
 alias d='docker'
 alias dc='docker compose'
@@ -118,6 +129,16 @@ command -v ncdu &>/dev/null && alias du='ncdu --color dark'
 command -v http &>/dev/null && alias https='http --default-scheme=https'
 command -v difft &>/dev/null && alias ddiff='difft'
 
+# tmux-sessionizer — usable outside tmux too (starts a session and attaches)
+command -v tmux-sessionizer &>/dev/null && alias ts='tmux-sessionizer'
+
+# mise (runtime version manager)
+if command -v mise &>/dev/null; then
+    alias mi='mise install'
+    alias mu='mise use'
+    alias mr='mise run'
+fi
+
 # yazi (terminal file manager) — cd's the shell to wherever you exit yazi in
 if command -v yazi &>/dev/null; then
     function y() {
@@ -129,14 +150,6 @@ if command -v yazi &>/dev/null; then
         fi
         rm -f -- "$tmp"
     }
-fi
-
-# television (fast fuzzy finder with curated channels) — complements fzf
-if command -v tv &>/dev/null; then
-    alias tvf='tv files'
-    alias tvg='tv git-log'
-    alias tvb='tv git-branch'
-    alias tvd='tv dirs'
 fi
 
 # --- Python ------------------------------------------------------------------

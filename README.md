@@ -79,7 +79,7 @@ Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses t
 | [gitleaks](https://github.com/gitleaks/gitleaks) | Secret scanner, wired into global pre-commit + pre-push hooks | Blocks commits/pushes containing keys/tokens |
 | [1Password CLI](https://developer.1password.com/docs/cli/) | SSH agent + secrets from the terminal | `op signin` |
 | [yazi](https://github.com/sxyazi/yazi) | Terminal file manager with image previews | `y` (cd's your shell to wherever you exit) |
-| [television](https://github.com/alexpasmantier/television) | Fast fuzzy finder with curated channels | `tvf` files, `tvg` git log, `tvb` branches |
+| [television](https://github.com/alexpasmantier/television) | Fast fuzzy finder — installed but not wired into aliases; fzf already covers this and is more stable for ad-hoc piping | `tv files` |
 | [bottom](https://github.com/ClementTsang/bottom) | Modern graphing process viewer | `top` (aliased, replaces htop) |
 
 ---
@@ -142,6 +142,11 @@ gunwip    Undo last WIP commit
 gtags     List tags (newest first)
 gclean    Remove untracked files
 lg        lazygit
+ghpr      gh pr create
+ghprv     gh pr view --web
+ghprs     gh pr status
+ghis      gh issue list
+leakscan  Manually scan the working tree for secrets (gitleaks)
 ```
 
 #### Git Hooks
@@ -284,8 +289,9 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 
 | Command | Action |
 |---------|--------|
-| `mise use node@22` | Pin Node 22 for the current project (writes `mise.toml`) |
-| `mise install` | Install versions pinned in `mise.toml`/`.tool-versions` |
+| `mu node@22` (`mise use`) | Pin Node 22 for the current project (writes `mise.toml`) |
+| `mi` (`mise install`) | Install versions pinned in `mise.toml`/`.tool-versions` |
+| `mr <task>` (`mise run`) | Run a task defined in `mise.toml` |
 | `mise ls` | List installed runtime versions |
 | `mise doctor` | Diagnose activation/shims issues |
 
@@ -314,6 +320,7 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `prefix + d` | Detach |
 | `prefix + $` | Rename session |
 | `prefix + f` | Fuzzy-jump between `~/GitHub` projects (creates/switches session via `tmux-sessionizer`; override the search paths with `TMUX_SESSIONIZER_PATHS="~/GitHub ~/work"`) |
+| `ts` (shell alias) | Same sessionizer, usable from outside tmux too — starts/attaches a session |
 
 #### Windows
 | Key | Action |
