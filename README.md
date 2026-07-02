@@ -40,7 +40,7 @@ Safe to run multiple times (idempotent).
 | **editorconfig** | Consistent formatting across editors |
 | **ripgrep** | Smart defaults for code search |
 
-Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux) uses the same **Catppuccin Mocha** palette for a consistent look end to end.
+Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses the same **Catppuccin Mocha** palette for a consistent look end to end.
 
 ## Tools Installed
 
@@ -48,7 +48,7 @@ Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux) uses the sa
 
 | Classic | Modern | Purpose |
 |---------|--------|---------|
-| `ls` | [eza](https://github.com/eza-community/eza) | File listing with icons & git status |
+| `ls` | [eza](https://github.com/eza-community/eza) | File listing with icons, git status, Catppuccin Mocha colors |
 | `cat` | [bat](https://github.com/sharkdp/bat) | Syntax-highlighted file viewing |
 | `grep` | [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast recursive code search |
 | `find` | [fd](https://github.com/sharkdp/fd) | Fast, user-friendly file finding |

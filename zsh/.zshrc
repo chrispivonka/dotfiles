@@ -136,6 +136,14 @@ if command -v fzf &>/dev/null; then
     fi
 fi
 
+# --- Eza colors (Catppuccin Mocha) -------------------------------------------
+if command -v eza &>/dev/null; then
+    export EZA_COLORS="di=38;2;137;180;250:ex=38;2;166;227;161:ln=38;2;148;226;213:\
+pi=38;2;249;226;175:so=38;2;203;166;247:bd=38;2;250;179;135:cd=38;2;250;179;135:\
+or=38;2;243;139;168:uu=38;2;166;227;161:un=38;2;243;139;168:gu=38;2;166;227;161:\
+gn=38;2;243;139;168:da=38;2;137;220;235"
+fi
+
 # --- Zoxide (smarter cd) ----------------------------------------------------
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
