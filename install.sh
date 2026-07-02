@@ -391,6 +391,7 @@ create_symlinks() {
     link_file "$DOTFILES_DIR/ripgrep/.ripgreprc"        "$HOME/.ripgreprc"
     link_file "$DOTFILES_DIR/git/hooks"                 "$HOME/.githooks"
     link_file "$DOTFILES_DIR/bin/tmux-sessionizer"      "$HOME/.local/bin/tmux-sessionizer"
+    link_file "$DOTFILES_DIR/bin/op-ssh-sign"           "$HOME/.local/bin/op-ssh-sign"
     link_file "$DOTFILES_DIR/bat/config"                "$HOME/.config/bat/config"
 
     # lazygit's config dir differs by OS

@@ -3,9 +3,13 @@
 # Bound to `prefix + f` in tmux/.tmux.conf.
 set -euo pipefail
 
-search_paths=(
-    "$HOME/GitHub"
-)
+# Space-separated list of directories to search, e.g.
+# export TMUX_SESSIONIZER_PATHS="$HOME/GitHub $HOME/work"
+if [ -n "${TMUX_SESSIONIZER_PATHS:-}" ]; then
+    read -r -a search_paths <<< "$TMUX_SESSIONIZER_PATHS"
+else
+    search_paths=("$HOME/GitHub")
+fi
 
 if [ $# -eq 1 ]; then
     selected="$1"

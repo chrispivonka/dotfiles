@@ -310,7 +310,7 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `tmux a -t name` | Attach to session |
 | `prefix + d` | Detach |
 | `prefix + $` | Rename session |
-| `prefix + f` | Fuzzy-jump between `~/GitHub` projects (creates/switches session via `tmux-sessionizer`) |
+| `prefix + f` | Fuzzy-jump between `~/GitHub` projects (creates/switches session via `tmux-sessionizer`; override the search paths with `TMUX_SESSIONIZER_PATHS="~/GitHub ~/work"`) |
 
 #### Windows
 | Key | Action |
@@ -507,7 +507,8 @@ tldr --update                         # Update local cache
 dotfiles/
 ├── install.sh              # Bootstrap + install script (macOS & Linux)
 ├── bin/
-│   └── tmux-sessionizer    # -> ~/.local/bin/tmux-sessionizer
+│   ├── tmux-sessionizer    # -> ~/.local/bin/tmux-sessionizer
+│   └── op-ssh-sign         # -> ~/.local/bin/op-ssh-sign (portable 1Password signing shim)
 ├── zsh/
 │   ├── .zshrc              # -> ~/.zshrc
 │   └── aliases.zsh         # Sourced from .zshrc
