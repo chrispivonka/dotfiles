@@ -22,7 +22,9 @@ done < <(git diff --cached --name-only --diff-filter=ACM -z)
 # Block files that are almost always credentials/keys, even if their content
 # doesn't trip gitleaks (e.g. an empty placeholder .env)
 sensitive_pattern='(^|/)(\.env(\..+)?|.*\.pem|.*\.key|id_rsa|id_ed25519|id_ecdsa)$'
+safe_env_pattern='(^|/)\.env\.(example|sample|template|dist)$'
 while IFS= read -r -d '' file; do
+    [[ "$file" =~ $safe_env_pattern ]] && continue
     if [[ "$file" =~ $sensitive_pattern ]]; then
         echo "error: '$file' looks like a credential/key file (git commit --no-verify to bypass)" >&2
         exit 1
