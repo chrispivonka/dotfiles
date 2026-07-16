@@ -348,7 +348,7 @@ install_packages_debian() {
     # pnpm — official installer
     if ! command_exists pnpm; then
         info "Installing pnpm..."
-        curl -fsSL https://get.pnpm.io/install.sh | sh -s -- --no-shell-setup
+        curl --proto '=https' --tlsv1.2 -fsSL https://get.pnpm.io/install.sh | sh -s -- --no-shell-setup
         export PNPM_HOME="$HOME/.local/share/pnpm"
         export PATH="$PNPM_HOME:$PATH"
     fi
@@ -356,13 +356,13 @@ install_packages_debian() {
     # bun — official installer
     if ! command_exists bun; then
         info "Installing bun..."
-        curl -fsSL https://bun.sh/install | bash
+        curl --proto '=https' --tlsv1.2 -fsSL https://bun.sh/install | bash
     fi
 
     # uv — fast Python package manager
     if ! command_exists uv; then
         info "Installing uv..."
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+        curl --proto '=https' --tlsv1.2 -LsSf https://astral.sh/uv/install.sh | sh
     fi
 
     # .NET SDK 8 (LTS) — Microsoft apt repo
