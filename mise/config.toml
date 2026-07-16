@@ -1,0 +1,17 @@
+# =============================================================================
+# Mise — global tool versions
+# Docs: https://mise.jdx.dev/configuration.html
+# =============================================================================
+# These are the global fallback versions used when no project-level
+# .mise.toml or .tool-versions file is present.
+
+[tools]
+python = "3.12"
+node = "lts"
+dotnet = "8"          # .NET LTS — C# support
+
+[settings]
+# Activate tools automatically when entering a directory
+activate_aggressive = false
+# Speed: don't re-check for new versions on every shell init
+not_found_auto_install = false

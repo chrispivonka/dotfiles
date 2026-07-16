@@ -81,11 +81,25 @@ install_packages_macos() {
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
         atuin mise pinentry-mac 1password-cli
         yazi television bottom
+        awscli pnpm bun uv
+        kubectl k9s
     )
 
     info "Installing packages via Homebrew..."
     brew install "${packages[@]}" 2>/dev/null || true
     success "Homebrew packages installed"
+
+    # Ghostty terminal
+    if [ ! -d "/Applications/Ghostty.app" ]; then
+        info "Installing Ghostty..."
+        brew install --cask ghostty 2>/dev/null || true
+    fi
+
+    # .NET SDK (C# support)
+    if ! command_exists dotnet; then
+        info "Installing .NET SDK..."
+        brew install --cask dotnet-sdk 2>/dev/null || true
+    fi
 
     # Nerd Fonts (needed for icons in starship, neovim, eza, etc.)
     local fonts=(
@@ -296,6 +310,74 @@ install_packages_debian() {
         rm -f /tmp/bottom.tar.gz
     fi
 
+    # AWS CLI v2 — official installer
+    if ! command_exists aws; then
+        info "Installing AWS CLI v2..."
+        local arch_aws="x86_64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_aws="aarch64"; fi
+        curl -sLo /tmp/awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-${arch_aws}.zip"
+        unzip -qo /tmp/awscliv2.zip -d /tmp
+        sudo /tmp/aws/install --update
+        rm -rf /tmp/awscliv2.zip /tmp/aws
+    fi
+
+    # kubectl — official apt repo
+    if ! command_exists kubectl; then
+        info "Installing kubectl..."
+        local k8s_ver
+        k8s_ver=$(curl -sL https://dl.k8s.io/release/stable.txt)
+        local arch_k8s="amd64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_k8s="arm64"; fi
+        curl -sLo /tmp/kubectl "https://dl.k8s.io/release/${k8s_ver}/bin/linux/${arch_k8s}/kubectl"
+        chmod +x /tmp/kubectl && sudo mv /tmp/kubectl /usr/local/bin/kubectl
+    fi
+
+    # k9s — from GitHub releases
+    if ! command_exists k9s; then
+        info "Installing k9s..."
+        local arch_k9s="amd64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_k9s="arm64"; fi
+        local k9s_ver
+        k9s_ver=$(curl -sL https://api.github.com/repos/derailed/k9s/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+        curl -sLo /tmp/k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${k9s_ver}/k9s_Linux_${arch_k9s}.tar.gz"
+        tar xzf /tmp/k9s.tar.gz -C /tmp k9s
+        sudo mv /tmp/k9s /usr/local/bin/k9s
+        rm -f /tmp/k9s.tar.gz
+    fi
+
+    # pnpm — official installer
+    if ! command_exists pnpm; then
+        info "Installing pnpm..."
+        curl -fsSL https://get.pnpm.io/install.sh | sh -s -- --no-shell-setup
+        export PNPM_HOME="$HOME/.local/share/pnpm"
+        export PATH="$PNPM_HOME:$PATH"
+    fi
+
+    # bun — official installer
+    if ! command_exists bun; then
+        info "Installing bun..."
+        curl -fsSL https://bun.sh/install | bash
+    fi
+
+    # uv — fast Python package manager
+    if ! command_exists uv; then
+        info "Installing uv..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+
+    # .NET SDK 8 (LTS) — Microsoft apt repo
+    if ! command_exists dotnet; then
+        info "Installing .NET SDK 8..."
+        local arch_deb="amd64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_deb="arm64"; fi
+        wget -qO /tmp/packages-microsoft-prod.deb \
+            "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+        sudo dpkg -i /tmp/packages-microsoft-prod.deb
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq dotnet-sdk-8.0
+        rm -f /tmp/packages-microsoft-prod.deb
+    fi
+
     # Nerd Fonts — download from GitHub releases
     local font_dir="$HOME/.local/share/fonts"
     mkdir -p "$font_dir"
@@ -433,6 +515,15 @@ create_symlinks() {
     link_file "$DOTFILES_DIR/bin/tmux-sessionizer"      "$HOME/.local/bin/tmux-sessionizer"
     link_file "$DOTFILES_DIR/bin/op-ssh-sign"           "$HOME/.local/bin/op-ssh-sign"
     link_file "$DOTFILES_DIR/bat/config"                "$HOME/.config/bat/config"
+    link_file "$DOTFILES_DIR/atuin/config.toml"         "$HOME/.config/atuin/config.toml"
+    link_file "$DOTFILES_DIR/mise/config.toml"          "$HOME/.config/mise/config.toml"
+
+    # Ghostty config — path differs by OS
+    if [ "$OS" = "macos" ]; then
+        link_file "$DOTFILES_DIR/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+    else
+        link_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    fi
 
     # lazygit's config dir differs by OS
     if [ "$OS" = "macos" ]; then
@@ -537,6 +628,9 @@ main() {
     echo ""
     info "Run 'exec zsh' to reload your shell"
     info "In tmux, press Ctrl-a + I to install tmux plugins"
+    info "In nvim, run :MasonUpdate to refresh LSP servers"
+    info "AWS: run 'aws configure' or 'aws sso login' to authenticate"
+    info "mise: run 'mise install' to install global runtimes (python, node, dotnet)"
     echo ""
 }
 

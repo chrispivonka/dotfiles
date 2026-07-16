@@ -159,6 +159,15 @@ alias venv='python3 -m venv'
 alias activate='source .venv/bin/activate 2>/dev/null || source venv/bin/activate 2>/dev/null || echo "No venv found"'
 alias pipreq='pip freeze > requirements.txt'
 
+# uv (fast Python package manager — preferred over pip for new projects)
+if command -v uv &>/dev/null; then
+    alias uvs='uv sync'
+    alias uva='uv add'
+    alias uvr='uv run'
+    alias uvvenv='uv venv'
+    alias uvpi='uv pip install'
+fi
+
 # --- Node/JS -----------------------------------------------------------------
 alias ni='npm install'
 alias nr='npm run'
@@ -166,6 +175,76 @@ alias nrd='npm run dev'
 alias nrb='npm run build'
 alias nrt='npm run test'
 alias nrl='npm run lint'
+
+# pnpm (fast npm alternative)
+if command -v pnpm &>/dev/null; then
+    alias pn='pnpm'
+    alias pni='pnpm install'
+    alias pnr='pnpm run'
+    alias pnd='pnpm run dev'
+    alias pnb='pnpm run build'
+    alias pnt='pnpm run test'
+fi
+
+# bun (JS runtime & package manager)
+if command -v bun &>/dev/null; then
+    alias bi='bun install'
+    alias br='bun run'
+    alias bd='bun run dev'
+    alias bb='bun run build'
+fi
+
+# --- .NET / C# ---------------------------------------------------------------
+if command -v dotnet &>/dev/null; then
+    alias dn='dotnet'
+    alias dnr='dotnet run'
+    alias dnb='dotnet build'
+    alias dnt='dotnet test'
+    alias dnw='dotnet watch'
+    alias dna='dotnet add package'
+    alias dnrm='dotnet remove package'
+    alias dnls='dotnet list package'
+    alias dnnew='dotnet new'
+    alias dnpub='dotnet publish -c Release'
+fi
+
+# --- AWS ---------------------------------------------------------------------
+if command -v aws &>/dev/null; then
+    # Switch AWS profile interactively (requires fzf)
+    awsp() {
+        local profile
+        profile=$(aws configure list-profiles 2>/dev/null | fzf --prompt="AWS Profile > " --height=40%) || return 1
+        export AWS_PROFILE="$profile"
+        echo "AWS_PROFILE set to: $AWS_PROFILE"
+    }
+    alias awsl='aws sso login'
+    alias awsw='aws sts get-caller-identity'
+    alias awsregion='echo "${AWS_DEFAULT_REGION:-not set}"'
+    alias awsprofile='echo "${AWS_PROFILE:-default}"'
+    alias awsls='aws configure list-profiles'
+    alias awsec2='aws ec2 describe-instances --output table'
+    alias awss3='aws s3 ls'
+    alias awslogs='aws logs tail --follow'
+fi
+
+# --- Kubernetes --------------------------------------------------------------
+if command -v kubectl &>/dev/null; then
+    alias k='kubectl'
+    alias kgp='kubectl get pods'
+    alias kgpa='kubectl get pods -A'
+    alias kgs='kubectl get services'
+    alias kgn='kubectl get nodes'
+    alias kgd='kubectl get deployments'
+    alias kaf='kubectl apply -f'
+    alias kdf='kubectl delete -f'
+    alias kdp='kubectl describe pod'
+    alias kl='kubectl logs -f'
+    alias kex='kubectl exec -it'
+    alias kctx='kubectl config use-context'
+    alias kns='kubectl config set-context --current --namespace'
+    alias kctxls='kubectl config get-contexts'
+fi
+command -v k9s &>/dev/null && alias k9='k9s'
 
 # --- Network & debugging -----------------------------------------------------
 alias myip='curl -s ifconfig.me'

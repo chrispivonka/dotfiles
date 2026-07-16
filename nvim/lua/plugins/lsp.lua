@@ -21,6 +21,7 @@ return {
                 "lua_ls",
                 "pyright",
                 "ts_ls",
+                "eslint",
                 "bashls",
                 "jsonls",
                 "yamlls",
@@ -29,8 +30,58 @@ return {
                 "dockerls",
                 "gopls",
                 "rust_analyzer",
+                "omnisharp",    -- C# / .NET
             },
             automatic_installation = true,
+        },
+    },
+
+    -- mason-tool-installer: ensure formatters/linters are installed
+    {
+        "WhoIsSethDaniel/mason-tool-installer.nvim",
+        dependencies = { "williamboman/mason.nvim" },
+        opts = {
+            ensure_installed = {
+                "prettier",     -- JS/TS/CSS/HTML/JSON/YAML
+                "black",        -- Python formatter
+                "isort",        -- Python import sorter
+                "csharpier",    -- C# formatter
+                "stylua",       -- Lua formatter
+            },
+        },
+    },
+
+    -- conform.nvim — lightweight formatter (format-on-save)
+    {
+        "stevearc/conform.nvim",
+        event = { "BufWritePre" },
+        cmd = { "ConformInfo" },
+        keys = {
+            {
+                "<leader>cf",
+                function() require("conform").format({ async = true, lsp_fallback = true }) end,
+                desc = "Format buffer",
+            },
+        },
+        opts = {
+            formatters_by_ft = {
+                lua = { "stylua" },
+                python = { "isort", "black" },
+                javascript = { "prettier" },
+                javascriptreact = { "prettier" },
+                typescript = { "prettier" },
+                typescriptreact = { "prettier" },
+                css = { "prettier" },
+                html = { "prettier" },
+                json = { "prettier" },
+                yaml = { "prettier" },
+                markdown = { "prettier" },
+                cs = { "csharpier" },
+            },
+            format_on_save = {
+                timeout_ms = 500,
+                lsp_fallback = true,
+            },
         },
     },
 
@@ -97,6 +148,7 @@ return {
                 },
                 pyright = {},
                 ts_ls = {},
+                eslint = {},
                 bashls = {},
                 jsonls = {},
                 yamlls = {},
@@ -105,6 +157,13 @@ return {
                 dockerls = {},
                 gopls = {},
                 rust_analyzer = {},
+                omnisharp = {
+                    cmd = { "omnisharp" },
+                    settings = {
+                        FormattingOptions = { EnableEditorConfigSupport = true },
+                        RoslynExtensionsOptions = { EnableImportCompletion = true },
+                    },
+                },
             }
 
             for server, config in pairs(servers) do

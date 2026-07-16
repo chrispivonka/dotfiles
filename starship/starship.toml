@@ -6,7 +6,7 @@
 palette = "catppuccin_mocha"
 
 format = """
-$os $directory$git_branch$git_status$python$nodejs$rust$golang$java$docker_context$aws$kubernetes$terraform$cmd_duration$jobs$character"""
+$os $directory$git_branch$git_status$python$nodejs$dotnet$rust$golang$java$docker_context$aws$kubernetes$terraform$cmd_duration$jobs$character"""
 
 right_format = ""
 
@@ -74,6 +74,11 @@ style = "yellow"
 format = '[$symbol($version)]($style) '
 symbol = " "
 style = "green"
+
+[dotnet]
+format = '[$symbol($version)( 󰓻 $tfm)]($style) '
+symbol = "󰌛 "
+style = "mauve"
 
 [rust]
 format = '[$symbol($version)]($style) '
