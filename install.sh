@@ -77,7 +77,7 @@ install_packages_macos() {
 
     local packages=(
         neovim tmux starship fzf ripgrep fd bat eza zoxide
-        git-delta lazygit gh gitleaks
+        git-delta lazygit gh gitleaks git-lfs
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
         atuin mise pinentry-mac 1password-cli
         yazi television bottom
@@ -121,7 +121,7 @@ install_packages_debian() {
 
     # Core packages available in default repos
     local apt_packages=(
-        neovim tmux fzf ripgrep fd-find bat zoxide git curl wget unzip
+        neovim tmux fzf ripgrep fd-find bat zoxide git git-lfs curl wget unzip
         tldr jq htop ncdu httpie tree shellcheck pinentry-curses gnupg
     )
     info "Installing core packages via apt..."
@@ -141,7 +141,7 @@ install_packages_debian() {
     # Starship — official installer
     if ! command_exists starship; then
         info "Installing starship..."
-        curl -sS https://starship.rs/install.sh | sh -s -- -y
+        curl --proto '=https' --tlsv1.2 -sS https://starship.rs/install.sh | sh -s -- -y
     fi
 
     # Eza — from official repo
@@ -259,7 +259,7 @@ install_packages_debian() {
     # mise — official installer
     if ! command_exists mise; then
         info "Installing mise..."
-        curl -sS https://mise.run | sh
+        curl --proto '=https' --tlsv1.2 -sS https://mise.run | sh
     fi
 
     # 1Password CLI — official apt repo
