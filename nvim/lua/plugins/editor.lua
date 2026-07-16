@@ -1,5 +1,6 @@
 -- =============================================================================
--- Editor utilities: file explorer, autopairs, comments, which-key, etc.
+-- Editor utilities: file explorer, autopairs, which-key, flash, etc.
+-- Note: comment toggling (gcc/gc) is native in Neovim 0.10+ via vim.comment
 -- =============================================================================
 
 return {
@@ -9,7 +10,6 @@ return {
         branch = "v3.x",
         dependencies = {
             "nvim-lua/plenary.nvim",
-            "nvim-tree/nvim-web-devicons",
             "MunifTanjim/nui.nvim",
         },
         keys = {
@@ -43,28 +43,20 @@ return {
         config = true,
     },
 
-    -- Comments (gcc to toggle)
-    {
-        "numToStr/Comment.nvim",
-        keys = {
-            { "gcc", mode = "n", desc = "Toggle comment" },
-            { "gc",  mode = "v", desc = "Toggle comment" },
-        },
-        config = true,
-    },
-
     -- Which-key (shows available keymaps)
     {
         "folke/which-key.nvim",
         event = "VeryLazy",
         opts = {
             spec = {
+                { "<leader>a", group = "AI" },
                 { "<leader>f", group = "Find" },
                 { "<leader>h", group = "Git hunks" },
                 { "<leader>b", group = "Buffer" },
                 { "<leader>c", group = "Code" },
                 { "<leader>r", group = "Rename" },
                 { "<leader>t", group = "Toggle" },
+                { "<leader>g", group = "Git" },
             },
         },
     },
@@ -83,12 +75,33 @@ return {
         config = true,
     },
 
-    -- Better escape (jk to exit insert mode)
+    -- Flash: fast cursor jump with s/S (replaces leap/hop)
     {
-        "max397574/better-escape.nvim",
-        event = "InsertEnter",
+        "folke/flash.nvim",
+        event = "VeryLazy",
         opts = {
-            timeout = 200,
+            modes = {
+                search = { enabled = false }, -- don't hijack / search
+                char = { enabled = true },    -- enhance f/t/F/T
+            },
+        },
+        keys = {
+            { "s",     function() require("flash").jump() end,              mode = { "n", "x", "o" }, desc = "Flash jump" },
+            { "S",     function() require("flash").treesitter() end,        mode = { "n", "x", "o" }, desc = "Flash treesitter" },
+            { "r",     function() require("flash").remote() end,            mode = "o",               desc = "Remote flash" },
+            { "R",     function() require("flash").treesitter_search() end, mode = { "o", "x" },      desc = "Treesitter search" },
+            { "<C-s>", function() require("flash").toggle() end,            mode = "c",               desc = "Toggle flash search" },
+        },
+    },
+
+    -- lazydev: faster Lua LSP for Neovim config/plugin development
+    {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+            library = {
+                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+            },
         },
     },
 
@@ -99,7 +112,7 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         opts = {},
         keys = {
-            { "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "Find TODOs" },
+            { "<leader>ft", "<cmd>TodoSnacks<cr>", desc = "Find TODOs" },
         },
     },
 }

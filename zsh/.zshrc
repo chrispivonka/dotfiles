@@ -36,8 +36,7 @@ setopt HIST_IGNORE_ALL_DUPS      # remove older duplicate
 setopt HIST_IGNORE_SPACE         # commands starting with space not saved
 setopt HIST_FIND_NO_DUPS         # no dupes in search results
 setopt HIST_SAVE_NO_DUPS         # no dupes written to file
-setopt SHARE_HISTORY             # share history across sessions
-setopt INC_APPEND_HISTORY        # append immediately, not on exit
+setopt SHARE_HISTORY             # share history across sessions (implies INC_APPEND_HISTORY)
 
 # --- Shell options -----------------------------------------------------------
 setopt AUTO_CD                   # cd by typing directory name
@@ -87,7 +86,7 @@ if [ -d "$ZINIT_HOME" ]; then
     zstyle ':fzf-tab:*' switch-group ',' '.'
 
     zinit light zsh-users/zsh-autosuggestions
-    zinit light zsh-users/zsh-syntax-highlighting  # must be last
+    zinit light zdharma-continuum/fast-syntax-highlighting  # must be last
 fi
 
 # Replay completions from zinit plugins

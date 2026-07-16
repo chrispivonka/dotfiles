@@ -51,9 +51,15 @@ cursor-style = block
 cursor-style-blink = false
 
 # --- Scrollback & performance ------------------------------------------------
-scrollback-limit = 10000
+scrollback-limit = 100000
 mouse-hide-while-typing = true
 
 # --- macOS specific ----------------------------------------------------------
 macos-option-as-alt = true
 macos-window-shadow = false
+
+# --- Quick terminal (drop-down, bound to Cmd+`) ------------------------------
+quick-terminal-keybind = global:cmd+grave_accent
+quick-terminal-position = top
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0

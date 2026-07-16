@@ -6,9 +6,10 @@
 # .mise.toml or .tool-versions file is present.
 
 [tools]
-python = "3.12"
+python = "3.13"
 node = "lts"
-dotnet = "8"          # .NET LTS — C# support
+go = "latest"
+dotnet = "9"          # .NET current — C# support
 
 [settings]
 # Activate tools automatically when entering a directory

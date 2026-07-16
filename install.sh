@@ -81,7 +81,7 @@ install_packages_macos() {
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
         atuin mise pinentry-mac 1password-cli
         yazi television bottom
-        awscli pnpm bun uv
+        awscli pnpm bun uv go
         kubectl k9s
     )
 
@@ -98,7 +98,7 @@ install_packages_macos() {
     # .NET SDK (C# support)
     if ! command_exists dotnet; then
         info "Installing .NET SDK..."
-        brew install --cask dotnet-sdk 2>/dev/null || true
+        brew install --cask dotnet-sdk@9 2>/dev/null || brew install --cask dotnet-sdk 2>/dev/null || true
     fi
 
     # Nerd Fonts (needed for icons in starship, neovim, eza, etc.)
@@ -365,16 +365,16 @@ install_packages_debian() {
         curl --proto '=https' --tlsv1.2 -LsSf https://astral.sh/uv/install.sh | sh
     fi
 
-    # .NET SDK 8 (LTS) — Microsoft apt repo
+    # .NET SDK 9 (current) — Microsoft apt repo
     if ! command_exists dotnet; then
-        info "Installing .NET SDK 8..."
+        info "Installing .NET SDK 9..."
         local arch_deb="amd64"
         if [ "$(uname -m)" = "aarch64" ]; then arch_deb="arm64"; fi
         wget -qO /tmp/packages-microsoft-prod.deb \
             "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
         sudo dpkg -i /tmp/packages-microsoft-prod.deb
         sudo apt-get update -qq
-        sudo apt-get install -y -qq dotnet-sdk-8.0
+        sudo apt-get install -y -qq dotnet-sdk-9.0
         rm -f /tmp/packages-microsoft-prod.deb
     fi
 
@@ -630,7 +630,8 @@ main() {
     info "In tmux, press Ctrl-a + I to install tmux plugins"
     info "In nvim, run :MasonUpdate to refresh LSP servers"
     info "AWS: run 'aws configure' or 'aws sso login' to authenticate"
-    info "mise: run 'mise install' to install global runtimes (python, node, dotnet)"
+    info "mise: run 'mise install' to install global runtimes (python, node, go, dotnet)"
+    info "git: run 'git maintenance start' in large repos for background optimizations"
     echo ""
 }
 
