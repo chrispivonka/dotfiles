@@ -112,7 +112,7 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         opts = {},
         keys = {
-            { "<leader>ft", "<cmd>TodoSnacks<cr>", desc = "Find TODOs" },
+            { "<leader>ft", function() Snacks.picker.todo_comments() end, desc = "Find TODOs" },
         },
     },
 }

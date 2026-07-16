@@ -51,7 +51,7 @@ cursor-style = block
 cursor-style-blink = false
 
 # --- Scrollback & performance ------------------------------------------------
-scrollback-limit = 100000
+scrollback-limit = 50000
 mouse-hide-while-typing = true
 
 # --- macOS specific ----------------------------------------------------------
