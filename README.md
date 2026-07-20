@@ -22,7 +22,7 @@ The install script:
 
 Safe to run multiple times (idempotent).
 
-> **iTerm2 font setup:** Go to Settings > Profiles > Text > Font and select "MesloLGS Nerd Font" for icons to render.
+> **Ghostty font setup:** Open Settings (`Cmd+,`) and set `font-family = "JetBrainsMono Nerd Font"` (already configured in `ghostty/config`). For other terminals, select a Nerd Font in the terminal's font preferences.
 
 ---
 
@@ -511,7 +511,7 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `<leader>w` | Save file |
 | `<leader>q` | Quit |
 | `<leader>Q` | Force quit all |
-| `<leader>a` | Select all |
+| `<leader>va` | Select all |
 | `Ctrl+d/u` | Scroll down/up (centered) |
 | `Esc` | Clear search highlight |
 
