@@ -395,6 +395,20 @@ install_packages_debian() {
     fc-cache -f "$font_dir" 2>/dev/null || true
     success "Nerd Fonts installed"
 
+    # Ghostty terminal — via Flatpak (official distribution method on Linux)
+    if ! command_exists flatpak; then
+        info "Installing Flatpak..."
+        sudo apt-get install -y -qq flatpak
+        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+    fi
+    if ! flatpak list 2>/dev/null | grep -q "com.mitchellh.ghostty"; then
+        info "Installing Ghostty via Flatpak..."
+        flatpak install -y flathub com.mitchellh.ghostty 2>/dev/null || \
+            warn "Ghostty Flatpak install failed. Install manually: flatpak install flathub com.mitchellh.ghostty"
+    else
+        success "Ghostty already installed"
+    fi
+
     success "All Debian/Ubuntu packages installed"
 }
 
@@ -495,6 +509,44 @@ setup_tmux_local() {
 EOF
 
     success "Created ~/.tmux.local.conf"
+}
+
+# -----------------------------------------------------------------------------
+# Setup ~/.ssh/allowed_signers (required for SSH commit signing via 1Password)
+# -----------------------------------------------------------------------------
+setup_allowed_signers() {
+    local allowed_signers="$HOME/.ssh/allowed_signers"
+    if [ -f "$allowed_signers" ]; then
+        info "~/.ssh/allowed_signers already exists, skipping"
+        return
+    fi
+
+    mkdir -p "$HOME/.ssh"
+    # Try to populate from existing gitconfig email + ssh public keys
+    local email
+    email=$(git config --global --get user.email 2>/dev/null || echo "")
+
+    if [ -n "$email" ]; then
+        local key_added=false
+        for pub_key in "$HOME/.ssh/"*.pub; do
+            [ -f "$pub_key" ] || continue
+            echo "${email} $(cat "$pub_key")" >> "$allowed_signers"
+            success "Added $(basename "$pub_key") to ~/.ssh/allowed_signers for $email"
+            key_added=true
+        done
+        if ! $key_added; then
+            # Create empty file so git doesn't error; user fills in manually
+            touch "$allowed_signers"
+            warn "No SSH public keys found. Add your signing key to ~/.ssh/allowed_signers:"
+            warn "  echo \"$email \$(cat ~/.ssh/id_ed25519.pub)\" >> ~/.ssh/allowed_signers"
+        fi
+    else
+        touch "$allowed_signers"
+        warn "git user.email not set. Populate ~/.ssh/allowed_signers manually:"
+        warn "  echo \"you@example.com \$(cat ~/.ssh/id_ed25519.pub)\" >> ~/.ssh/allowed_signers"
+    fi
+
+    chmod 600 "$allowed_signers"
 }
 
 # -----------------------------------------------------------------------------
@@ -605,6 +657,7 @@ main() {
     setup_gitconfig_local
     setup_zshrc_local
     setup_tmux_local
+    setup_allowed_signers
 
     # Create symlinks
     create_symlinks
@@ -616,6 +669,12 @@ main() {
     # Install neovim plugins
     install_nvim_plugins
 
+    # Apply macOS system defaults
+    if [ "$OS" = "macos" ] && [ -f "$DOTFILES_DIR/macos/defaults.sh" ]; then
+        info "Applying macOS system defaults..."
+        bash "$DOTFILES_DIR/macos/defaults.sh"
+    fi
+
     echo ""
     echo "========================================="
     success "Dotfiles installation complete!"
@@ -625,6 +684,7 @@ main() {
     info "Personal git config:     ~/.gitconfig.local"
     info "Local zsh overrides:     ~/.zshrc.local"
     info "Local tmux overrides:    ~/.tmux.local.conf"
+    info "SSH signing:             ~/.ssh/allowed_signers"
     echo ""
     info "Run 'exec zsh' to reload your shell"
     info "In tmux, press Ctrl-a + I to install tmux plugins"
