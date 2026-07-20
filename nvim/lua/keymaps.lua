@@ -53,5 +53,8 @@ map("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease height" })
 map("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease width" })
 map("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase width" })
 
--- Select all
-map("n", "<leader>a", "ggVG", { desc = "Select all" })
+-- Escape shortcut (home-row friendly)
+map("i", "jk", "<Esc>", { desc = "Exit insert mode" })
+
+-- Select all (visual)
+map("n", "<leader>va", "ggVG", { desc = "Select all" })

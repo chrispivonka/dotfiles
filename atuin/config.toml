@@ -1,0 +1,27 @@
+# =============================================================================
+# Atuin — shell history config (local-only, no cloud sync)
+# Docs: https://docs.atuin.sh/configuration/config/
+# =============================================================================
+
+[daemon]
+# Async history writes: shell startup is faster because writes are non-blocking
+enabled = true
+
+[sync]
+# Cloud sync disabled — history stays local
+records = false
+
+[updates]
+check_new_release = false  # don't phone home on every shell start
+
+[history]
+store_failed = false       # don't store commands that exit non-zero
+ignore_duration = "1s"     # skip sub-second commands
+
+[search]
+filter_mode = "global"                      # default: search all history
+filter_mode_shell_up_key_binding = "session" # up-arrow: current session only
+search_mode = "fuzzy"
+
+[stats]
+common_prefix = ["sudo", "cd", "git"]

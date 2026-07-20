@@ -77,15 +77,29 @@ install_packages_macos() {
 
     local packages=(
         neovim tmux starship fzf ripgrep fd bat eza zoxide
-        git-delta lazygit gh gitleaks
+        git-delta lazygit gh gitleaks git-lfs
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
         atuin mise pinentry-mac 1password-cli
         yazi television bottom
+        awscli pnpm bun uv go
+        kubectl k9s
     )
 
     info "Installing packages via Homebrew..."
     brew install "${packages[@]}" 2>/dev/null || true
     success "Homebrew packages installed"
+
+    # Ghostty terminal
+    if [ ! -d "/Applications/Ghostty.app" ]; then
+        info "Installing Ghostty..."
+        brew install --cask ghostty 2>/dev/null || true
+    fi
+
+    # .NET SDK (C# support)
+    if ! command_exists dotnet; then
+        info "Installing .NET SDK..."
+        brew install --cask dotnet-sdk@9 2>/dev/null || brew install --cask dotnet-sdk 2>/dev/null || true
+    fi
 
     # Nerd Fonts (needed for icons in starship, neovim, eza, etc.)
     local fonts=(
@@ -107,7 +121,7 @@ install_packages_debian() {
 
     # Core packages available in default repos
     local apt_packages=(
-        neovim tmux fzf ripgrep fd-find bat zoxide git curl wget unzip
+        neovim tmux fzf ripgrep fd-find bat zoxide git git-lfs curl wget unzip
         tldr jq htop ncdu httpie tree shellcheck pinentry-curses gnupg
     )
     info "Installing core packages via apt..."
@@ -127,7 +141,7 @@ install_packages_debian() {
     # Starship — official installer
     if ! command_exists starship; then
         info "Installing starship..."
-        curl -sS https://starship.rs/install.sh | sh -s -- -y
+        curl --proto '=https' --tlsv1.2 -sS https://starship.rs/install.sh | sh -s -- -y
     fi
 
     # Eza — from official repo
@@ -245,7 +259,7 @@ install_packages_debian() {
     # mise — official installer
     if ! command_exists mise; then
         info "Installing mise..."
-        curl -sS https://mise.run | sh
+        curl --proto '=https' --tlsv1.2 -sS https://mise.run | sh
     fi
 
     # 1Password CLI — official apt repo
@@ -296,6 +310,74 @@ install_packages_debian() {
         rm -f /tmp/bottom.tar.gz
     fi
 
+    # AWS CLI v2 — official installer
+    if ! command_exists aws; then
+        info "Installing AWS CLI v2..."
+        local arch_aws="x86_64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_aws="aarch64"; fi
+        curl -sLo /tmp/awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-${arch_aws}.zip"
+        unzip -qo /tmp/awscliv2.zip -d /tmp
+        sudo /tmp/aws/install --update
+        rm -rf /tmp/awscliv2.zip /tmp/aws
+    fi
+
+    # kubectl — official apt repo
+    if ! command_exists kubectl; then
+        info "Installing kubectl..."
+        local k8s_ver
+        k8s_ver=$(curl -sL https://dl.k8s.io/release/stable.txt)
+        local arch_k8s="amd64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_k8s="arm64"; fi
+        curl -sLo /tmp/kubectl "https://dl.k8s.io/release/${k8s_ver}/bin/linux/${arch_k8s}/kubectl"
+        chmod +x /tmp/kubectl && sudo mv /tmp/kubectl /usr/local/bin/kubectl
+    fi
+
+    # k9s — from GitHub releases
+    if ! command_exists k9s; then
+        info "Installing k9s..."
+        local arch_k9s="amd64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_k9s="arm64"; fi
+        local k9s_ver
+        k9s_ver=$(curl -sL https://api.github.com/repos/derailed/k9s/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+        curl -sLo /tmp/k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${k9s_ver}/k9s_Linux_${arch_k9s}.tar.gz"
+        tar xzf /tmp/k9s.tar.gz -C /tmp k9s
+        sudo mv /tmp/k9s /usr/local/bin/k9s
+        rm -f /tmp/k9s.tar.gz
+    fi
+
+    # pnpm — official installer
+    if ! command_exists pnpm; then
+        info "Installing pnpm..."
+        curl --proto '=https' --tlsv1.2 -fsSL https://get.pnpm.io/install.sh | sh -s -- --no-shell-setup
+        export PNPM_HOME="$HOME/.local/share/pnpm"
+        export PATH="$PNPM_HOME:$PATH"
+    fi
+
+    # bun — official installer
+    if ! command_exists bun; then
+        info "Installing bun..."
+        curl --proto '=https' --tlsv1.2 -fsSL https://bun.sh/install | bash
+    fi
+
+    # uv — fast Python package manager
+    if ! command_exists uv; then
+        info "Installing uv..."
+        curl --proto '=https' --tlsv1.2 -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+
+    # .NET SDK 9 (current) — Microsoft apt repo
+    if ! command_exists dotnet; then
+        info "Installing .NET SDK 9..."
+        local arch_deb="amd64"
+        if [ "$(uname -m)" = "aarch64" ]; then arch_deb="arm64"; fi
+        wget -qO /tmp/packages-microsoft-prod.deb \
+            "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+        sudo dpkg -i /tmp/packages-microsoft-prod.deb
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq dotnet-sdk-9.0
+        rm -f /tmp/packages-microsoft-prod.deb
+    fi
+
     # Nerd Fonts — download from GitHub releases
     local font_dir="$HOME/.local/share/fonts"
     mkdir -p "$font_dir"
@@ -312,6 +394,20 @@ install_packages_debian() {
     done
     fc-cache -f "$font_dir" 2>/dev/null || true
     success "Nerd Fonts installed"
+
+    # Ghostty terminal — via Flatpak (official distribution method on Linux)
+    if ! command_exists flatpak; then
+        info "Installing Flatpak..."
+        sudo apt-get install -y -qq flatpak
+        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+    fi
+    if ! flatpak list 2>/dev/null | grep -q "com.mitchellh.ghostty"; then
+        info "Installing Ghostty via Flatpak..."
+        flatpak install -y flathub com.mitchellh.ghostty 2>/dev/null || \
+            warn "Ghostty Flatpak install failed. Install manually: flatpak install flathub com.mitchellh.ghostty"
+    else
+        success "Ghostty already installed"
+    fi
 
     success "All Debian/Ubuntu packages installed"
 }
@@ -416,6 +512,44 @@ EOF
 }
 
 # -----------------------------------------------------------------------------
+# Setup ~/.ssh/allowed_signers (required for SSH commit signing via 1Password)
+# -----------------------------------------------------------------------------
+setup_allowed_signers() {
+    local allowed_signers="$HOME/.ssh/allowed_signers"
+    if [ -f "$allowed_signers" ]; then
+        info "~/.ssh/allowed_signers already exists, skipping"
+        return
+    fi
+
+    mkdir -p "$HOME/.ssh"
+    # Try to populate from existing gitconfig email + ssh public keys
+    local email
+    email=$(git config --global --get user.email 2>/dev/null || echo "")
+
+    if [ -n "$email" ]; then
+        local key_added=false
+        for pub_key in "$HOME/.ssh/"*.pub; do
+            [ -f "$pub_key" ] || continue
+            echo "${email} $(cat "$pub_key")" >> "$allowed_signers"
+            success "Added $(basename "$pub_key") to ~/.ssh/allowed_signers for $email"
+            key_added=true
+        done
+        if ! $key_added; then
+            # Create empty file so git doesn't error; user fills in manually
+            touch "$allowed_signers"
+            warn "No SSH public keys found. Add your signing key to ~/.ssh/allowed_signers:"
+            warn "  echo \"$email \$(cat ~/.ssh/id_ed25519.pub)\" >> ~/.ssh/allowed_signers"
+        fi
+    else
+        touch "$allowed_signers"
+        warn "git user.email not set. Populate ~/.ssh/allowed_signers manually:"
+        warn "  echo \"you@example.com \$(cat ~/.ssh/id_ed25519.pub)\" >> ~/.ssh/allowed_signers"
+    fi
+
+    chmod 600 "$allowed_signers"
+}
+
+# -----------------------------------------------------------------------------
 # Symlink dotfiles
 # -----------------------------------------------------------------------------
 create_symlinks() {
@@ -433,6 +567,15 @@ create_symlinks() {
     link_file "$DOTFILES_DIR/bin/tmux-sessionizer"      "$HOME/.local/bin/tmux-sessionizer"
     link_file "$DOTFILES_DIR/bin/op-ssh-sign"           "$HOME/.local/bin/op-ssh-sign"
     link_file "$DOTFILES_DIR/bat/config"                "$HOME/.config/bat/config"
+    link_file "$DOTFILES_DIR/atuin/config.toml"         "$HOME/.config/atuin/config.toml"
+    link_file "$DOTFILES_DIR/mise/config.toml"          "$HOME/.config/mise/config.toml"
+
+    # Ghostty config — path differs by OS
+    if [ "$OS" = "macos" ]; then
+        link_file "$DOTFILES_DIR/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+    else
+        link_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    fi
 
     # lazygit's config dir differs by OS
     if [ "$OS" = "macos" ]; then
@@ -514,6 +657,7 @@ main() {
     setup_gitconfig_local
     setup_zshrc_local
     setup_tmux_local
+    setup_allowed_signers
 
     # Create symlinks
     create_symlinks
@@ -525,6 +669,12 @@ main() {
     # Install neovim plugins
     install_nvim_plugins
 
+    # Apply macOS system defaults
+    if [ "$OS" = "macos" ] && [ -f "$DOTFILES_DIR/macos/defaults.sh" ]; then
+        info "Applying macOS system defaults..."
+        bash "$DOTFILES_DIR/macos/defaults.sh"
+    fi
+
     echo ""
     echo "========================================="
     success "Dotfiles installation complete!"
@@ -534,9 +684,14 @@ main() {
     info "Personal git config:     ~/.gitconfig.local"
     info "Local zsh overrides:     ~/.zshrc.local"
     info "Local tmux overrides:    ~/.tmux.local.conf"
+    info "SSH signing:             ~/.ssh/allowed_signers"
     echo ""
     info "Run 'exec zsh' to reload your shell"
     info "In tmux, press Ctrl-a + I to install tmux plugins"
+    info "In nvim, run :MasonUpdate to refresh LSP servers"
+    info "AWS: run 'aws configure' or 'aws sso login' to authenticate"
+    info "mise: run 'mise install' to install global runtimes (python, node, go, dotnet)"
+    info "git: run 'git maintenance start' in large repos for background optimizations"
     echo ""
 }
 

@@ -22,7 +22,7 @@ The install script:
 
 Safe to run multiple times (idempotent).
 
-> **iTerm2 font setup:** Go to Settings > Profiles > Text > Font and select "MesloLGS Nerd Font" for icons to render.
+> **Ghostty font setup:** Open Settings (`Cmd+,`) and set `font-family = "JetBrainsMono Nerd Font"` (already configured in `ghostty/config`). For other terminals, select a Nerd Font in the terminal's font preferences.
 
 ---
 
@@ -31,16 +31,16 @@ Safe to run multiple times (idempotent).
 | Config | Description |
 |--------|-------------|
 | **zsh** | zinit, autosuggestions, syntax highlighting, fzf-tab fuzzy completion, atuin history, mise runtimes |
-| **git** | Delta pager (Catppuccin Mocha), useful aliases, histogram diffs, auto-rebase, rerere, SSH commit signing via 1Password, global hooks (secret/large-file/conflict-marker/whitespace guards, force-push protection) |
-| **starship** | Fast prompt with Catppuccin theme, git status, language versions |
-| **tmux** | Mouse, true color, vim keys, TPM, session persistence, fuzzy project sessionizer, Catppuccin Mocha status bar |
-| **neovim** | lazy.nvim, LSP, telescope, treesitter, catppuccin theme |
-| **bat** | Catppuccin Mocha theme, line numbers + change markers |
-| **lazygit** | Catppuccin Mocha theme, delta as the diff pager |
+| **git** | Delta pager (GitHub Dark), useful aliases, histogram diffs, auto-rebase, rerere, SSH commit signing via 1Password, global hooks (secret/large-file/conflict-marker/whitespace guards, force-push protection) |
+| **starship** | Fast prompt with GitHub Dark theme, git status, language versions |
+| **tmux** | Mouse, true color, vim keys, TPM, session persistence, fuzzy project sessionizer, GitHub Dark status bar |
+| **neovim** | lazy.nvim, LSP (mason), blink.cmp, snacks.nvim (picker + UI), treesitter, GitHub Dark theme |
+| **bat** | GitHub Dark theme, line numbers + change markers |
+| **lazygit** | GitHub Dark theme, delta as the diff pager |
 | **editorconfig** | Consistent formatting across editors |
 | **ripgrep** | Smart defaults for code search |
 
-Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses the same **Catppuccin Mocha** palette for a consistent look end to end.
+Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses the same **GitHub Dark** palette for a consistent look end to end.
 
 ## Tools Installed
 
@@ -48,7 +48,7 @@ Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses t
 
 | Classic | Modern | Purpose |
 |---------|--------|---------|
-| `ls` | [eza](https://github.com/eza-community/eza) | File listing with icons, git status, Catppuccin Mocha colors |
+| `ls` | [eza](https://github.com/eza-community/eza) | File listing with icons, git status, GitHub Dark colors |
 | `cat` | [bat](https://github.com/sharkdp/bat) | Syntax-highlighted file viewing |
 | `grep` | [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast recursive code search |
 | `find` | [fd](https://github.com/sharkdp/fd) | Fast, user-friendly file finding |
@@ -185,6 +185,11 @@ pip       pip3
 venv      python3 -m venv
 activate  Source .venv or venv activate
 pipreq    pip freeze > requirements.txt
+uvs       uv sync
+uva       uv add <package>
+uvr       uv run <cmd>
+uvvenv    uv venv
+uvpi      uv pip install <package>
 ```
 
 #### Node/JS
@@ -195,6 +200,61 @@ nrd       npm run dev
 nrb       npm run build
 nrt       npm run test
 nrl       npm run lint
+pn        pnpm
+pni       pnpm install
+pnr       pnpm run
+pnd       pnpm run dev
+pnb       pnpm run build
+pnt       pnpm run test
+bi        bun install
+br        bun run
+bd        bun run dev
+bb        bun run build
+```
+
+#### .NET / C#
+```
+dn        dotnet
+dnr       dotnet run
+dnb       dotnet build
+dnt       dotnet test
+dnw       dotnet watch
+dna       dotnet add package
+dnrm      dotnet remove package
+dnls      dotnet list package
+dnnew     dotnet new
+dnpub     dotnet publish -c Release
+```
+
+#### AWS
+```
+awsp      Switch AWS profile interactively (fzf)
+awsl      aws sso login
+awsw      aws sts get-caller-identity (who am I?)
+awsprofile  Show current profile
+awsls     List configured profiles
+awsec2    List EC2 instances (table view)
+awss3     aws s3 ls
+awslogs   aws logs tail --follow <group>
+```
+
+#### Kubernetes
+```
+k         kubectl
+kgp       kubectl get pods
+kgpa      kubectl get pods -A (all namespaces)
+kgs       kubectl get services
+kgn       kubectl get nodes
+kgd       kubectl get deployments
+kaf       kubectl apply -f
+kdf       kubectl delete -f
+kdp       kubectl describe pod
+kl        kubectl logs -f
+kex       kubectl exec -it
+kctx      kubectl config use-context
+kns       kubectl config set-context --current --namespace
+kctxls    kubectl config get-contexts
+k9        k9s (terminal UI)
 ```
 
 #### Networking
@@ -370,7 +430,7 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `<leader>e` | Toggle file explorer |
 | `<leader>E` | Reveal current file in explorer |
 
-#### Finding (Telescope)
+#### Finding (Snacks.picker)
 | Key | Action |
 |-----|--------|
 | `<leader>ff` | Find files |
@@ -382,6 +442,9 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `<leader>fs` | Git status |
 | `<leader>fc` | Git commits |
 | `<leader>ft` | Find TODOs |
+| `<leader>fw` | Search word under cursor |
+| `<leader>fk` | Keymaps |
+| `<leader>fp` | Projects |
 | `<leader>/` | Search in current buffer |
 
 #### LSP (when attached)
@@ -398,7 +461,7 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `[d` / `]d` | Prev/next diagnostic |
 | `<leader>d` | Show diagnostic float |
 
-#### Git (Gitsigns)
+#### Git (Gitsigns + Snacks)
 | Key | Action |
 |-----|--------|
 | `]h` / `[h` | Next/prev hunk |
@@ -410,6 +473,15 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `<leader>hb` | Blame line |
 | `<leader>hd` | Diff this |
 | `<leader>tb` | Toggle inline blame |
+| `<leader>gg` | Open lazygit (floating) |
+| `<leader>gB` | Open current file/line in GitHub |
+
+#### Terminal & UI
+| Key | Action |
+|-----|--------|
+| `<leader>tt` | Toggle floating terminal |
+| `<leader>tz` | Toggle zen mode |
+| `<leader>cf` | Format buffer (`conform.nvim`) |
 
 #### Editing
 | Key | Action |
@@ -439,7 +511,7 @@ Local-only — sync and update checks are disabled in `~/.config/atuin/config.to
 | `<leader>w` | Save file |
 | `<leader>q` | Quit |
 | `<leader>Q` | Force quit all |
-| `<leader>a` | Select all |
+| `<leader>va` | Select all |
 | `Ctrl+d/u` | Scroll down/up (centered) |
 | `Esc` | Clear search highlight |
 
@@ -537,21 +609,36 @@ dotfiles/
 │   └── .tmux.conf          # -> ~/.tmux.conf
 ├── nvim/                   # -> ~/.config/nvim (directory symlink)
 │   ├── init.lua
+│   ├── lazy-lock.json      # Plugin version pins
 │   └── lua/
 │       ├── options.lua
 │       ├── keymaps.lua
 │       ├── lazy-bootstrap.lua
 │       └── plugins/
-│           ├── telescope.lua
+│           ├── telescope.lua   # snacks.nvim (picker + indent + lazygit + terminal + more)
 │           ├── treesitter.lua
-│           ├── lsp.lua
-│           ├── ui.lua
-│           └── editor.lua
+│           ├── lsp.lua         # mason, blink.cmp, conform.nvim
+│           ├── ui.lua          # github-nvim-theme, lualine, gitsigns, mini.icons
+│           ├── editor.lua      # neo-tree, which-key, flash, lazydev, todo-comments
+│           └── ai.lua          # codecompanion.nvim (Copilot / Anthropic)
+├── ghostty/
+│   └── config              # -> ~/Library/Application Support/com.mitchellh.ghostty/config (macOS)
+│                           #    or ~/.config/ghostty/config (Linux)
+├── atuin/
+│   └── config.toml         # -> ~/.config/atuin/config.toml
+├── mise/
+│   └── config.toml         # -> ~/.config/mise/config.toml
+├── bat/
+│   └── config              # -> ~/.config/bat/config
+├── lazygit/
+│   └── config.yml          # -> ~/Library/Application Support/lazygit/config.yml (macOS)
+│                           #    or ~/.config/lazygit/config.yml (Linux)
 ├── editorconfig/
 │   └── .editorconfig       # -> ~/.editorconfig
 └── ripgrep/
     └── .ripgreprc           # -> ~/.ripgreprc
 ```
+
 
 ## Local Overrides
 
