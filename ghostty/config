@@ -1,5 +1,5 @@
 # =============================================================================
-# Ghostty configuration — Catppuccin Mocha
+# Ghostty configuration — GitHub Dark
 # Docs: https://ghostty.org/docs/config
 # =============================================================================
 
@@ -8,33 +8,33 @@ font-family = "JetBrainsMono Nerd Font"
 font-size = 14
 font-thicken = true
 
-# --- Theme (Catppuccin Mocha) ------------------------------------------------
-background = 1e1e2e
-foreground = cdd6f4
-cursor-color = f5e0dc
-cursor-text = 1e1e2e
-selection-background = 45475a
-selection-foreground = cdd6f4
+# --- Theme (GitHub Dark) -----------------------------------------------------
+background = 0d1117
+foreground = e6edf3
+cursor-color = 58a6ff
+cursor-text = 0d1117
+selection-background = 264f78
+selection-foreground = e6edf3
 
 # Normal colors (0-7)
-palette = 0=#45475a
-palette = 1=#f38ba8
-palette = 2=#a6e3a1
-palette = 3=#f9e2af
-palette = 4=#89b4fa
-palette = 5=#cba6f7
-palette = 6=#94e2d5
-palette = 7=#bac2de
+palette = 0=#484f58
+palette = 1=#ff7b72
+palette = 2=#3fb950
+palette = 3=#d29922
+palette = 4=#58a6ff
+palette = 5=#bc8cff
+palette = 6=#39c5cf
+palette = 7=#b1bac4
 
 # Bright colors (8-15)
-palette = 8=#585b70
-palette = 9=#f38ba8
-palette = 10=#a6e3a1
-palette = 11=#f9e2af
-palette = 12=#89b4fa
-palette = 13=#cba6f7
-palette = 14=#94e2d5
-palette = 15=#a6adc8
+palette = 8=#6e7681
+palette = 9=#ffa198
+palette = 10=#56d364
+palette = 11=#e3b341
+palette = 12=#79c0ff
+palette = 13=#d2a8ff
+palette = 14=#56d4dd
+palette = 15=#f0f6fc
 
 # --- Window ------------------------------------------------------------------
 window-padding-x = 8

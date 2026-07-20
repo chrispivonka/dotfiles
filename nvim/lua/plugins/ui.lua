@@ -4,28 +4,23 @@
 -- =============================================================================
 
 return {
-    -- Catppuccin theme
+    -- GitHub Dark theme
     {
-        "catppuccin/nvim",
-        name = "catppuccin",
+        "projekt0n/github-nvim-theme",
+        name = "github-nvim-theme",
         priority = 1000,
         lazy = false,
-        opts = {
-            flavour = "mocha",
-            transparent_background = false,
-            integrations = {
-                blink_cmp = true,
-                gitsigns = true,
-                mason = true,
-                neo_tree = true,
-                snacks = true,
-                treesitter = true,
-                which_key = true,
-            },
-        },
-        config = function(_, opts)
-            require("catppuccin").setup(opts)
-            vim.cmd.colorscheme("catppuccin")
+        config = function()
+            require("github-theme").setup({
+                options = {
+                    transparent = false,
+                    styles = {
+                        comments = "italic",
+                        keywords = "bold",
+                    },
+                },
+            })
+            vim.cmd.colorscheme("github_dark_default")
         end,
     },
 
@@ -35,7 +30,7 @@ return {
         event = "VeryLazy",
         opts = {
             options = {
-                theme = "catppuccin",
+                theme = "auto",
                 globalstatus = true,
                 component_separators = { left = "|", right = "|" },
                 section_separators = { left = "", right = "" },

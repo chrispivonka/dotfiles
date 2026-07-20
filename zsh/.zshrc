@@ -104,13 +104,13 @@ bindkey '^[f' forward-word                    # alt-right
 
 # --- FZF integration ---------------------------------------------------------
 if command -v fzf &>/dev/null; then
-    # Catppuccin Mocha — https://github.com/catppuccin/fzf
+    # GitHub Dark — https://github.com/projekt0n/github-nvim-theme
     export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --info=inline \
---color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
---color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
---color=selected-bg:#45475a \
---color=border:#313244,label:#cdd6f4"
+--color=bg+:#161b22,bg:#0d1117,spinner:#58a6ff,hl:#ff7b72 \
+--color=fg:#e6edf3,header:#ff7b72,info:#bc8cff,pointer:#58a6ff \
+--color=marker:#3fb950,fg+:#e6edf3,prompt:#58a6ff,hl+:#ffa198 \
+--color=selected-bg:#264f78 \
+--color=border:#30363d,label:#e6edf3"
 
     # Use fd for file finding if available
     if command -v fd &>/dev/null; then
@@ -135,12 +135,12 @@ if command -v fzf &>/dev/null; then
     fi
 fi
 
-# --- Eza colors (Catppuccin Mocha) -------------------------------------------
+# --- Eza colors (GitHub Dark) ------------------------------------------------
 if command -v eza &>/dev/null; then
-    export EZA_COLORS="di=38;2;137;180;250:ex=38;2;166;227;161:ln=38;2;148;226;213:\
-pi=38;2;249;226;175:so=38;2;203;166;247:bd=38;2;250;179;135:cd=38;2;250;179;135:\
-or=38;2;243;139;168:uu=38;2;166;227;161:un=38;2;243;139;168:gu=38;2;166;227;161:\
-gn=38;2;243;139;168:da=38;2;137;220;235"
+    export EZA_COLORS="di=38;2;88;166;255:ex=38;2;63;185;80:ln=38;2;57;197;207:\
+pi=38;2;210;153;34:so=38;2;188;140;255:bd=38;2;240;136;62:cd=38;2;240;136;62:\
+or=38;2;255;123;114:uu=38;2;63;185;80:un=38;2;255;123;114:gu=38;2;63;185;80:\
+gn=38;2;255;123;114:da=38;2;57;197;207"
 fi
 
 # --- Zoxide (smarter cd) ----------------------------------------------------
