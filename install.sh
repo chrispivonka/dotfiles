@@ -77,7 +77,7 @@ install_packages_macos() {
 
     local packages=(
         neovim tmux starship fzf ripgrep fd bat eza zoxide
-        git-delta lazygit lazydocker gh gitleaks git-lfs
+        git-delta lazygit lazydocker gh gitleaks git-lfs tree-sitter-cli
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
         mise pinentry-mac 1password-cli
         yazi television bottom
@@ -258,6 +258,23 @@ install_packages_debian() {
         tar xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
         sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
         rm -f /tmp/gitleaks.tar.gz
+    fi
+
+    # tree-sitter CLI — required by nvim-treesitter (main branch) to compile parsers
+    if ! command_exists tree-sitter; then
+        info "Installing tree-sitter CLI..."
+        local ts_ver
+        ts_ver=$(curl --proto '=https' --tlsv1.2 -fsSL https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest 2>/dev/null | jq -r '.tag_name // empty')
+        if [ -z "$ts_ver" ]; then
+            warn "Could not determine latest tree-sitter CLI version, skipping"
+        else
+            local arch_tsc="x64"
+            if [ "$(uname -m)" = "aarch64" ]; then arch_tsc="arm64"; fi
+            curl --proto '=https' --tlsv1.2 -fsSLo /tmp/tree-sitter-cli.zip "https://github.com/tree-sitter/tree-sitter/releases/download/${ts_ver}/tree-sitter-cli-linux-${arch_tsc}.zip"
+            unzip -qo /tmp/tree-sitter-cli.zip -d /tmp
+            sudo mv /tmp/tree-sitter /usr/local/bin/tree-sitter
+            rm -f /tmp/tree-sitter-cli.zip
+        fi
     fi
 
     # mise — official installer
