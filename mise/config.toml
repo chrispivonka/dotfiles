@@ -9,7 +9,6 @@
 python = "3.13"
 node = "lts"
 go = "latest"
-dotnet = "9"          # .NET current — C# support
 
 [settings]
 # Activate tools automatically when entering a directory

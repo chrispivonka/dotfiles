@@ -30,7 +30,7 @@ Safe to run multiple times (idempotent).
 
 | Config | Description |
 |--------|-------------|
-| **zsh** | zinit, autosuggestions, syntax highlighting, fzf-tab fuzzy completion, atuin history, mise runtimes |
+| **zsh** | zinit, autosuggestions, syntax highlighting, fzf-tab fuzzy completion, mise runtimes |
 | **git** | Delta pager (GitHub Dark), useful aliases, histogram diffs, auto-rebase, rerere, SSH commit signing via 1Password, global hooks (secret/large-file/conflict-marker/whitespace guards, force-push protection) |
 | **starship** | Fast prompt with GitHub Dark theme, git status, language versions |
 | **tmux** | Mouse, true color, vim keys, TPM, session persistence, fuzzy project sessionizer, GitHub Dark status bar |
@@ -64,6 +64,7 @@ Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses t
 |------|---------|---------------|
 | [fzf](https://github.com/junegunn/fzf) | Fuzzy finder for everything | `Ctrl+R` to search history |
 | [lazygit](https://github.com/jesseduffield/lazygit) | Terminal UI for git | `lg` to launch |
+| [lazydocker](https://github.com/jesseduffield/lazydocker) | Terminal UI for Docker | `lzd` to launch |
 | [starship](https://starship.rs/) | Cross-shell prompt | Automatic -- shows git, languages |
 | [jq](https://jqlang.github.io/jq/) | JSON processor | `curl api \| jq '.data'` |
 | [yq](https://github.com/mikefarah/yq) | YAML/TOML processor | `yq '.key' file.yaml` |
@@ -74,7 +75,6 @@ Every themed tool (starship, neovim, bat, delta, fzf, lazygit, tmux, eza) uses t
 | [hyperfine](https://github.com/sharkdp/hyperfine) | Command benchmarking | `hyperfine 'cmd1' 'cmd2'` |
 | [difftastic](https://difftastic.wilfred.me.uk/) | Syntax-aware structural diffs | `difft file1 file2` |
 | [gh](https://cli.github.com/) | GitHub CLI | `gh pr create` |
-| [atuin](https://atuin.sh/) | Searchable shell history (SQLite, local-only) | `Ctrl+R` fuzzy history search |
 | [mise](https://mise.jdx.dev/) | Per-project runtime version manager | `mise use node@22` |
 | [gitleaks](https://github.com/gitleaks/gitleaks) | Secret scanner, wired into global pre-commit + pre-push hooks | Blocks commits/pushes containing keys/tokens |
 | [1Password CLI](https://developer.1password.com/docs/cli/) | SSH agent + secrets from the terminal | `op signin` |
@@ -142,6 +142,7 @@ gunwip    Undo last WIP commit
 gtags     List tags (newest first)
 gclean    Remove untracked files
 lg        lazygit
+lzd       lazydocker
 ghpr      gh pr create
 ghprv     gh pr view --web
 ghprs     gh pr status
@@ -210,20 +211,6 @@ bi        bun install
 br        bun run
 bd        bun run dev
 bb        bun run build
-```
-
-#### .NET / C#
-```
-dn        dotnet
-dnr       dotnet run
-dnb       dotnet build
-dnt       dotnet test
-dnw       dotnet watch
-dna       dotnet add package
-dnrm      dotnet remove package
-dnls      dotnet list package
-dnnew     dotnet new
-dnpub     dotnet publish -c Release
 ```
 
 #### AWS
@@ -331,17 +318,6 @@ mv        Prompts before overwrite (mv -i)
 | `Alt+C` | Search directories (cd into it) |
 | `**<Tab>` | Fuzzy completion (e.g., `vim **<Tab>`) |
 | `<Tab>` | fzf-tab fuzzy menu for any completion (cd, kill, git checkout, etc.) |
-
----
-
-### Atuin (Shell History)
-
-Local-only — sync and update checks are disabled in `~/.config/atuin/config.toml`. Never run `atuin register`/`atuin login` on this machine or history starts leaving it.
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+R` | Fuzzy search history (atuin) |
-| `↑` / `↓` | Normal zsh history search (unchanged, atuin doesn't take over the arrow keys) |
 
 ---
 
@@ -620,16 +596,14 @@ dotfiles/
 │           ├── lsp.lua         # mason, blink.cmp, conform.nvim
 │           ├── ui.lua          # github-nvim-theme, lualine, gitsigns, mini.icons
 │           ├── editor.lua      # neo-tree, which-key, flash, lazydev, todo-comments
-│           └── ai.lua          # codecompanion.nvim (Copilot / Anthropic)
 ├── ghostty/
 │   └── config              # -> ~/Library/Application Support/com.mitchellh.ghostty/config (macOS)
 │                           #    or ~/.config/ghostty/config (Linux)
-├── atuin/
-│   └── config.toml         # -> ~/.config/atuin/config.toml
 ├── mise/
 │   └── config.toml         # -> ~/.config/mise/config.toml
 ├── bat/
-│   └── config              # -> ~/.config/bat/config
+│   ├── config              # -> ~/.config/bat/config
+│   └── themes/             # -> ~/.config/bat/themes (custom GitHub Dark syntax theme)
 ├── lazygit/
 │   └── config.yml          # -> ~/Library/Application Support/lazygit/config.yml (macOS)
 │                           #    or ~/.config/lazygit/config.yml (Linux)

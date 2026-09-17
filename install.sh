@@ -77,12 +77,11 @@ install_packages_macos() {
 
     local packages=(
         neovim tmux starship fzf ripgrep fd bat eza zoxide
-        git-delta lazygit gh gitleaks git-lfs
+        git-delta lazygit lazydocker gh gitleaks git-lfs
         tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
-        atuin mise pinentry-mac 1password-cli
+        mise pinentry-mac 1password-cli
         yazi television bottom
         awscli pnpm bun uv go
-        kubectl k9s
     )
 
     info "Installing packages via Homebrew..."
@@ -93,12 +92,6 @@ install_packages_macos() {
     if [ ! -d "/Applications/Ghostty.app" ]; then
         info "Installing Ghostty..."
         brew install --cask ghostty 2>/dev/null || true
-    fi
-
-    # .NET SDK (C# support)
-    if ! command_exists dotnet; then
-        info "Installing .NET SDK..."
-        brew install --cask dotnet-sdk@9 2>/dev/null || brew install --cask dotnet-sdk 2>/dev/null || true
     fi
 
     # Nerd Fonts (needed for icons in starship, neovim, eza, etc.)
@@ -179,6 +172,23 @@ install_packages_debian() {
         rm -f /tmp/lazygit.tar.gz
     fi
 
+    # Lazydocker — from GitHub releases
+    if ! command_exists lazydocker; then
+        info "Installing lazydocker..."
+        local ld_ver
+        ld_ver=$(curl --proto '=https' --tlsv1.2 -fsSL https://api.github.com/repos/jesseduffield/lazydocker/releases/latest 2>/dev/null | grep '"tag_name"' | head -1 | cut -d'"' -f4 | sed 's/^v//' || true)
+        if [ -z "$ld_ver" ]; then
+            warn "Could not determine latest lazydocker version (GitHub API rate limit?), skipping"
+        else
+            local arch_ld="x86_64"
+            if [ "$(uname -m)" = "aarch64" ]; then arch_ld="arm64"; fi
+            curl --proto '=https' --tlsv1.2 -fsSLo /tmp/lazydocker.tar.gz "https://github.com/jesseduffield/lazydocker/releases/download/v${ld_ver}/lazydocker_${ld_ver}_Linux_${arch_ld}.tar.gz"
+            tar xzf /tmp/lazydocker.tar.gz -C /tmp lazydocker
+            sudo mv /tmp/lazydocker /usr/local/bin/lazydocker
+            rm -f /tmp/lazydocker.tar.gz
+        fi
+    fi
+
     # yq — from GitHub releases
     if ! command_exists yq; then
         info "Installing yq..."
@@ -250,12 +260,6 @@ install_packages_debian() {
         rm -f /tmp/gitleaks.tar.gz
     fi
 
-    # atuin — official installer
-    if ! command_exists atuin; then
-        info "Installing atuin..."
-        curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh -s -- --no-modify-path
-    fi
-
     # mise — official installer
     if ! command_exists mise; then
         info "Installing mise..."
@@ -315,34 +319,10 @@ install_packages_debian() {
         info "Installing AWS CLI v2..."
         local arch_aws="x86_64"
         if [ "$(uname -m)" = "aarch64" ]; then arch_aws="aarch64"; fi
-        curl -sLo /tmp/awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-${arch_aws}.zip"
+        curl --proto '=https' --tlsv1.2 -fsSLo /tmp/awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-${arch_aws}.zip"
         unzip -qo /tmp/awscliv2.zip -d /tmp
         sudo /tmp/aws/install --update
         rm -rf /tmp/awscliv2.zip /tmp/aws
-    fi
-
-    # kubectl — official apt repo
-    if ! command_exists kubectl; then
-        info "Installing kubectl..."
-        local k8s_ver
-        k8s_ver=$(curl -sL https://dl.k8s.io/release/stable.txt)
-        local arch_k8s="amd64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_k8s="arm64"; fi
-        curl -sLo /tmp/kubectl "https://dl.k8s.io/release/${k8s_ver}/bin/linux/${arch_k8s}/kubectl"
-        chmod +x /tmp/kubectl && sudo mv /tmp/kubectl /usr/local/bin/kubectl
-    fi
-
-    # k9s — from GitHub releases
-    if ! command_exists k9s; then
-        info "Installing k9s..."
-        local arch_k9s="amd64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_k9s="arm64"; fi
-        local k9s_ver
-        k9s_ver=$(curl -sL https://api.github.com/repos/derailed/k9s/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        curl -sLo /tmp/k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${k9s_ver}/k9s_Linux_${arch_k9s}.tar.gz"
-        tar xzf /tmp/k9s.tar.gz -C /tmp k9s
-        sudo mv /tmp/k9s /usr/local/bin/k9s
-        rm -f /tmp/k9s.tar.gz
     fi
 
     # pnpm — official installer
@@ -363,19 +343,6 @@ install_packages_debian() {
     if ! command_exists uv; then
         info "Installing uv..."
         curl --proto '=https' --tlsv1.2 -LsSf https://astral.sh/uv/install.sh | sh
-    fi
-
-    # .NET SDK 9 (current) — Microsoft apt repo
-    if ! command_exists dotnet; then
-        info "Installing .NET SDK 9..."
-        local arch_deb="amd64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_deb="arm64"; fi
-        wget -qO /tmp/packages-microsoft-prod.deb \
-            "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
-        sudo dpkg -i /tmp/packages-microsoft-prod.deb
-        sudo apt-get update -qq
-        sudo apt-get install -y -qq dotnet-sdk-9.0
-        rm -f /tmp/packages-microsoft-prod.deb
     fi
 
     # Nerd Fonts — download from GitHub releases
@@ -567,7 +534,7 @@ create_symlinks() {
     link_file "$DOTFILES_DIR/bin/tmux-sessionizer"      "$HOME/.local/bin/tmux-sessionizer"
     link_file "$DOTFILES_DIR/bin/op-ssh-sign"           "$HOME/.local/bin/op-ssh-sign"
     link_file "$DOTFILES_DIR/bat/config"                "$HOME/.config/bat/config"
-    link_file "$DOTFILES_DIR/atuin/config.toml"         "$HOME/.config/atuin/config.toml"
+    link_file "$DOTFILES_DIR/bat/themes"                "$HOME/.config/bat/themes"
     link_file "$DOTFILES_DIR/mise/config.toml"          "$HOME/.config/mise/config.toml"
 
     # Ghostty config — path differs by OS
@@ -585,6 +552,11 @@ create_symlinks() {
     fi
 
     success "All symlinks created"
+
+    # Rebuild bat's theme cache so the custom "GitHub Dark" theme is picked up
+    if command_exists bat; then
+        bat cache --build &>/dev/null || true
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -657,10 +629,11 @@ main() {
     setup_gitconfig_local
     setup_zshrc_local
     setup_tmux_local
-    setup_allowed_signers
-
-    # Create symlinks
+    # Create symlinks (activates .gitconfig.local via the include directive)
     create_symlinks
+
+    # Needs the symlinked ~/.gitconfig in place so user.email resolves
+    setup_allowed_signers
 
     # Install plugin managers
     install_zinit
@@ -690,7 +663,7 @@ main() {
     info "In tmux, press Ctrl-a + I to install tmux plugins"
     info "In nvim, run :MasonUpdate to refresh LSP servers"
     info "AWS: run 'aws configure' or 'aws sso login' to authenticate"
-    info "mise: run 'mise install' to install global runtimes (python, node, go, dotnet)"
+    info "mise: run 'mise install' to install global runtimes (python, node, go)"
     info "git: run 'git maintenance start' in large repos for background optimizations"
     echo ""
 }

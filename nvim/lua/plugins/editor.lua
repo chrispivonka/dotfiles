@@ -43,13 +43,21 @@ return {
         config = true,
     },
 
+    -- Better escape (jk to exit insert mode, without blocking on timeoutlen)
+    {
+        "max397574/better-escape.nvim",
+        event = "InsertEnter",
+        opts = {
+            timeout = 200,
+        },
+    },
+
     -- Which-key (shows available keymaps)
     {
         "folke/which-key.nvim",
         event = "VeryLazy",
         opts = {
             spec = {
-                { "<leader>a", group = "AI" },
                 { "<leader>f", group = "Find" },
                 { "<leader>h", group = "Git hunks" },
                 { "<leader>b", group = "Buffer" },

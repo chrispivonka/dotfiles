@@ -30,7 +30,6 @@ return {
                 "dockerls",
                 "gopls",
                 "rust_analyzer",
-                "omnisharp",    -- C# / .NET
                 "taplo",        -- TOML
             },
             automatic_enable = true,
@@ -46,7 +45,6 @@ return {
                 "prettier",     -- JS/TS/CSS/HTML/JSON/YAML/Markdown
                 "black",        -- Python formatter
                 "isort",        -- Python import sorter
-                "csharpier",    -- C# formatter
                 "stylua",       -- Lua formatter
                 "goimports",    -- Go import organizer + formatter
                 "taplo",        -- TOML formatter
@@ -79,7 +77,6 @@ return {
                 json = { "prettier" },
                 yaml = { "prettier" },
                 markdown = { "prettier" },
-                cs = { "csharpier" },
                 go = { "goimports" },
                 toml = { "taplo" },
             },
@@ -134,8 +131,6 @@ return {
             "saghen/blink.cmp",
         },
         config = function()
-            local lspconfig = require("lspconfig")
-
             -- blink.cmp provides enhanced capabilities (replaces cmp-nvim-lsp)
             local capabilities = require("blink.cmp").get_lsp_capabilities()
 
@@ -169,42 +164,21 @@ return {
                 float = { border = "rounded" },
             })
 
-            -- Setup each server
-            local servers = {
-                lua_ls = {
-                    settings = {
-                        Lua = {
-                            workspace = { checkThirdParty = false },
-                            telemetry = { enable = false },
-                            diagnostics = { globals = { "vim" } },
-                        },
-                    },
-                },
-                pyright = {},
-                ts_ls = {},
-                eslint = {},
-                bashls = {},
-                jsonls = {},
-                yamlls = {},
-                html = {},
-                cssls = {},
-                dockerls = {},
-                gopls = {},
-                rust_analyzer = {},
-                taplo = {},
-                omnisharp = {
-                    cmd = { "omnisharp" },
-                    settings = {
-                        FormattingOptions = { EnableEditorConfigSupport = true },
-                        RoslynExtensionsOptions = { EnableImportCompletion = true },
-                    },
-                },
-            }
+            -- Apply capabilities to every server. mason-lspconfig.nvim's
+            -- automatic_enable = true (see above) calls vim.lsp.enable() for each
+            -- ensure_installed server, which merges in these vim.lsp.config()
+            -- overrides — no manual lspconfig[server].setup() loop needed.
+            vim.lsp.config("*", { capabilities = capabilities })
 
-            for server, config in pairs(servers) do
-                config.capabilities = capabilities
-                lspconfig[server].setup(config)
-            end
+            vim.lsp.config("lua_ls", {
+                settings = {
+                    Lua = {
+                        workspace = { checkThirdParty = false },
+                        telemetry = { enable = false },
+                        diagnostics = { globals = { "vim" } },
+                    },
+                },
+            })
         end,
     },
 }

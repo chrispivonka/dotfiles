@@ -13,7 +13,7 @@ background = 0d1117
 foreground = e6edf3
 cursor-color = 58a6ff
 cursor-text = 0d1117
-selection-background = 264f78
+selection-background = 30363d
 selection-foreground = e6edf3
 
 # Normal colors (0-7)

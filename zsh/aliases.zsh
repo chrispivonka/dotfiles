@@ -92,6 +92,9 @@ alias gtags='git tag -l --sort=-version:refname'
 # lazygit
 command -v lazygit &>/dev/null && alias lg='lazygit'
 
+# lazydocker
+command -v lazydocker &>/dev/null && alias lzd='lazydocker'
+
 # gh (GitHub CLI)
 if command -v gh &>/dev/null; then
     alias ghpr='gh pr create'
@@ -192,20 +195,6 @@ if command -v bun &>/dev/null; then
     alias br='bun run'
     alias bd='bun run dev'
     alias bb='bun run build'
-fi
-
-# --- .NET / C# ---------------------------------------------------------------
-if command -v dotnet &>/dev/null; then
-    alias dn='dotnet'
-    alias dnr='dotnet run'
-    alias dnb='dotnet build'
-    alias dnt='dotnet test'
-    alias dnw='dotnet watch'
-    alias dna='dotnet add package'
-    alias dnrm='dotnet remove package'
-    alias dnls='dotnet list package'
-    alias dnnew='dotnet new'
-    alias dnpub='dotnet publish -c Release'
 fi
 
 # --- AWS ---------------------------------------------------------------------

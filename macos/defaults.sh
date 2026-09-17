@@ -10,7 +10,9 @@ set -euo pipefail
 info()    { printf '\033[1;34m[info]\033[0m %s\n' "$1"; }
 success() { printf '\033[1;32m[ok]\033[0m   %s\n' "$1"; }
 
-# Close System Preferences to prevent overwriting defaults
+# Close System Settings (macOS Ventura+) / System Preferences (older) to
+# prevent it from overwriting defaults written below when it later quits
+osascript -e 'tell application "System Settings" to quit' 2>/dev/null || true
 osascript -e 'tell application "System Preferences" to quit' 2>/dev/null || true
 
 # =============================================================================

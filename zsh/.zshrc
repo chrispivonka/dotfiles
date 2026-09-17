@@ -109,7 +109,7 @@ if command -v fzf &>/dev/null; then
 --color=bg+:#161b22,bg:#0d1117,spinner:#58a6ff,hl:#ff7b72 \
 --color=fg:#e6edf3,header:#ff7b72,info:#bc8cff,pointer:#58a6ff \
 --color=marker:#3fb950,fg+:#e6edf3,prompt:#58a6ff,hl+:#ffa198 \
---color=selected-bg:#264f78 \
+--color=selected-bg:#30363d \
 --color=border:#30363d,label:#e6edf3"
 
     # Use fd for file finding if available
@@ -145,9 +145,6 @@ fi
 
 # --- Zoxide (smarter cd) ----------------------------------------------------
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
-
-# --- Atuin (searchable shell history, local-only — see atuin/config.toml) ---
-command -v atuin &>/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
 
 # --- Mise (per-project runtime version manager) ------------------------------
 command -v mise &>/dev/null && eval "$(mise activate zsh)"
