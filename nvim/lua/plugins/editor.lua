@@ -1,41 +1,10 @@
 -- =============================================================================
--- Editor utilities: file explorer, autopairs, which-key, flash, etc.
+-- Editor utilities: autopairs, which-key, flash, etc.
 -- Note: comment toggling (gcc/gc) is native in Neovim 0.10+ via vim.comment
+-- File explorer: snacks.nvim's built-in explorer, see plugins/snacks.lua
 -- =============================================================================
 
 return {
-    -- File explorer
-    {
-        "nvim-neo-tree/neo-tree.nvim",
-        branch = "v3.x",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "MunifTanjim/nui.nvim",
-        },
-        keys = {
-            { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle file explorer" },
-            { "<leader>E", "<cmd>Neotree reveal<cr>", desc = "Reveal current file" },
-        },
-        opts = {
-            close_if_last_window = true,
-            filesystem = {
-                follow_current_file = { enabled = true },
-                use_libuv_file_watcher = true,
-                filtered_items = {
-                    hide_dotfiles = false,
-                    hide_gitignored = true,
-                    hide_by_name = { ".git", "node_modules", ".DS_Store" },
-                },
-            },
-            window = {
-                width = 35,
-                mappings = {
-                    ["<space>"] = "none",
-                },
-            },
-        },
-    },
-
     -- Auto pairs
     {
         "windwp/nvim-autopairs",

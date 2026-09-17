@@ -1,7 +1,8 @@
 -- =============================================================================
 -- snacks.nvim — Folke's all-in-one utility collection
 -- Replaces: telescope (picker), indent-blankline (indent), bigfile, notifier,
---           lazygit integration, terminal, gitbrowse, words highlight, etc.
+--           lazygit integration, terminal, gitbrowse, words highlight,
+--           neo-tree (file explorer), etc.
 -- =============================================================================
 
 return {
@@ -10,9 +11,17 @@ return {
         priority = 1000,
         lazy = false,
         opts = {
+            -- File explorer (replaces neo-tree.nvim)
+            explorer = {},
+
             -- Fuzzy picker (replaces telescope)
             picker = {
-                sources = {},
+                sources = {
+                    explorer = {
+                        hidden = true, -- show dotfiles
+                        exclude = { ".git", "node_modules", ".DS_Store" },
+                    },
+                },
                 win = {
                     input = {
                         keys = {
@@ -62,6 +71,9 @@ return {
             zen = { enabled = true },
         },
         keys = {
+            -- File explorer (same layout as previous neo-tree keymaps)
+            { "<leader>e", function() Snacks.explorer.open() end,                desc = "Toggle file explorer" },
+            { "<leader>E", function() Snacks.explorer.reveal() end,              desc = "Reveal current file" },
             -- Picker keymaps (same layout as previous telescope)
             { "<leader>ff", function() Snacks.picker.files() end,                desc = "Find files" },
             { "<leader>fg", function() Snacks.picker.grep() end,                 desc = "Live grep" },

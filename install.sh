@@ -77,16 +77,21 @@ install_packages_macos() {
 
     local packages=(
         neovim tmux starship fzf ripgrep fd bat eza zoxide
-        git-delta lazygit lazydocker gh gitleaks git-lfs tree-sitter-cli
-        tldr jq yq htop ncdu httpie tree shellcheck tokei hyperfine difftastic
+        gh git-lfs
+        tldr jq htop ncdu httpie tree shellcheck tokei
         mise pinentry-mac 1password-cli
-        yazi television bottom
-        awscli pnpm bun uv go
+        awscli pnpm bun uv
     )
 
     info "Installing packages via Homebrew..."
     brew install "${packages[@]}" 2>/dev/null || true
     success "Homebrew packages installed"
+
+    # delta, lazygit, lazydocker, yq, hyperfine, difftastic, gitleaks,
+    # tree-sitter, yazi, television, bottom are installed later via mise
+    # (see install_mise_tools) for one consistent, checksum-verified path
+    # across both macOS and Linux — see mise/config.toml. tokei has no
+    # prebuilt-binary mise backend (cargo-only), so it stays a brew formula.
 
     # Ghostty terminal
     if [ ! -d "/Applications/Ghostty.app" ]; then
@@ -122,6 +127,7 @@ install_packages_debian() {
 
     # Create compatibility symlinks for Ubuntu's renamed binaries
     mkdir -p "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH" # so mise (installed below) is found later in this script
     if command_exists batcat && ! command_exists bat; then
         ln -sf "$(which batcat)" "$HOME/.local/bin/bat"
         success "Linked batcat → bat"
@@ -147,56 +153,11 @@ install_packages_debian() {
         sudo apt-get install -y -qq eza
     fi
 
-    # Delta — from GitHub releases
-    if ! command_exists delta; then
-        info "Installing delta..."
-        local delta_ver
-        delta_ver=$(curl -sL https://api.github.com/repos/dandavison/delta/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        local arch
-        arch=$(dpkg --print-architecture)
-        curl -sLo /tmp/delta.deb "https://github.com/dandavison/delta/releases/download/${delta_ver}/git-delta_${delta_ver}_${arch}.deb"
-        sudo dpkg -i /tmp/delta.deb
-        rm -f /tmp/delta.deb
-    fi
-
-    # Lazygit — from GitHub releases
-    if ! command_exists lazygit; then
-        info "Installing lazygit..."
-        local lg_ver
-        lg_ver=$(curl -sL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4 | sed 's/^v//')
-        local arch_lg="Linux_x86_64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_lg="Linux_arm64"; fi
-        curl -sLo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${lg_ver}/lazygit_${lg_ver}_${arch_lg}.tar.gz"
-        tar xzf /tmp/lazygit.tar.gz -C /tmp lazygit
-        sudo mv /tmp/lazygit /usr/local/bin/lazygit
-        rm -f /tmp/lazygit.tar.gz
-    fi
-
-    # Lazydocker — from GitHub releases
-    if ! command_exists lazydocker; then
-        info "Installing lazydocker..."
-        local ld_ver
-        ld_ver=$(curl --proto '=https' --tlsv1.2 -fsSL https://api.github.com/repos/jesseduffield/lazydocker/releases/latest 2>/dev/null | grep '"tag_name"' | head -1 | cut -d'"' -f4 | sed 's/^v//' || true)
-        if [ -z "$ld_ver" ]; then
-            warn "Could not determine latest lazydocker version (GitHub API rate limit?), skipping"
-        else
-            local arch_ld="x86_64"
-            if [ "$(uname -m)" = "aarch64" ]; then arch_ld="arm64"; fi
-            curl --proto '=https' --tlsv1.2 -fsSLo /tmp/lazydocker.tar.gz "https://github.com/jesseduffield/lazydocker/releases/download/v${ld_ver}/lazydocker_${ld_ver}_Linux_${arch_ld}.tar.gz"
-            tar xzf /tmp/lazydocker.tar.gz -C /tmp lazydocker
-            sudo mv /tmp/lazydocker /usr/local/bin/lazydocker
-            rm -f /tmp/lazydocker.tar.gz
-        fi
-    fi
-
-    # yq — from GitHub releases
-    if ! command_exists yq; then
-        info "Installing yq..."
-        local arch_yq="amd64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_yq="arm64"; fi
-        curl -sLo /tmp/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${arch_yq}"
-        chmod +x /tmp/yq && sudo mv /tmp/yq /usr/local/bin/yq
-    fi
+    # delta, lazygit, lazydocker, yq, hyperfine, difftastic, gitleaks,
+    # tree-sitter, yazi, television, bottom are installed later via mise
+    # (see install_mise_tools) — mise's aqua backend checksum-verifies these
+    # GitHub releases instead of the hand-rolled curl+API pattern used here.
+    # tokei has no prebuilt-binary mise backend (cargo-only), so it stays here.
 
     # tokei — from GitHub releases
     if ! command_exists tokei; then
@@ -211,31 +172,6 @@ install_packages_debian() {
         rm -f /tmp/tokei.tar.gz
     fi
 
-    # hyperfine — from GitHub releases
-    if ! command_exists hyperfine; then
-        info "Installing hyperfine..."
-        local arch_hf="amd64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_hf="arm64"; fi
-        local hf_ver
-        hf_ver=$(curl -sL https://api.github.com/repos/sharkdp/hyperfine/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        curl -sLo /tmp/hyperfine.deb "https://github.com/sharkdp/hyperfine/releases/download/${hf_ver}/hyperfine_${hf_ver#v}_${arch_hf}.deb"
-        sudo dpkg -i /tmp/hyperfine.deb
-        rm -f /tmp/hyperfine.deb
-    fi
-
-    # difftastic — from GitHub releases
-    if ! command_exists difft; then
-        info "Installing difftastic..."
-        local arch_dft="x86_64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_dft="aarch64"; fi
-        local dft_ver
-        dft_ver=$(curl -sL https://api.github.com/repos/Wilfred/difftastic/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        curl -sLo /tmp/difft.tar.gz "https://github.com/Wilfred/difftastic/releases/download/${dft_ver}/difft-${arch_dft}-unknown-linux-gnu.tar.gz"
-        tar xzf /tmp/difft.tar.gz -C /tmp
-        sudo mv /tmp/difft /usr/local/bin/difft
-        rm -f /tmp/difft.tar.gz
-    fi
-
     # GitHub CLI — official apt repo
     if ! command_exists gh; then
         info "Installing GitHub CLI..."
@@ -245,36 +181,6 @@ install_packages_debian() {
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
         sudo apt-get update -qq
         sudo apt-get install -y -qq gh
-    fi
-
-    # gitleaks — from GitHub releases
-    if ! command_exists gitleaks; then
-        info "Installing gitleaks..."
-        local arch_gl="x64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_gl="arm64"; fi
-        local gl_ver
-        gl_ver=$(curl -sL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4 | sed 's/^v//')
-        curl -sLo /tmp/gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${gl_ver}/gitleaks_${gl_ver}_linux_${arch_gl}.tar.gz"
-        tar xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
-        sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
-        rm -f /tmp/gitleaks.tar.gz
-    fi
-
-    # tree-sitter CLI — required by nvim-treesitter (main branch) to compile parsers
-    if ! command_exists tree-sitter; then
-        info "Installing tree-sitter CLI..."
-        local ts_ver
-        ts_ver=$(curl --proto '=https' --tlsv1.2 -fsSL https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest 2>/dev/null | jq -r '.tag_name // empty')
-        if [ -z "$ts_ver" ]; then
-            warn "Could not determine latest tree-sitter CLI version, skipping"
-        else
-            local arch_tsc="x64"
-            if [ "$(uname -m)" = "aarch64" ]; then arch_tsc="arm64"; fi
-            curl --proto '=https' --tlsv1.2 -fsSLo /tmp/tree-sitter-cli.zip "https://github.com/tree-sitter/tree-sitter/releases/download/${ts_ver}/tree-sitter-cli-linux-${arch_tsc}.zip"
-            unzip -qo /tmp/tree-sitter-cli.zip -d /tmp
-            sudo mv /tmp/tree-sitter /usr/local/bin/tree-sitter
-            rm -f /tmp/tree-sitter-cli.zip
-        fi
     fi
 
     # mise — official installer
@@ -290,45 +196,6 @@ install_packages_debian() {
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | sudo tee /etc/apt/sources.list.d/1password.list >/dev/null
         sudo apt-get update -qq
         sudo apt-get install -y -qq 1password-cli
-    fi
-
-    # yazi — from GitHub releases
-    if ! command_exists yazi; then
-        info "Installing yazi..."
-        local arch_yz="x86_64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_yz="aarch64"; fi
-        local yz_ver
-        yz_ver=$(curl -sL https://api.github.com/repos/sxyazi/yazi/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        curl -sLo /tmp/yazi.zip "https://github.com/sxyazi/yazi/releases/download/${yz_ver}/yazi-${arch_yz}-unknown-linux-gnu.zip"
-        unzip -qo /tmp/yazi.zip -d /tmp
-        sudo mv /tmp/yazi-${arch_yz}-unknown-linux-gnu/yazi /tmp/yazi-${arch_yz}-unknown-linux-gnu/ya /usr/local/bin/
-        rm -rf /tmp/yazi.zip /tmp/yazi-${arch_yz}-unknown-linux-gnu
-    fi
-
-    # television — from GitHub releases
-    if ! command_exists tv; then
-        info "Installing television..."
-        local arch_tv="x86_64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_tv="aarch64"; fi
-        local tv_ver
-        tv_ver=$(curl -sL https://api.github.com/repos/alexpasmantier/television/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        curl -sLo /tmp/tv.tar.gz "https://github.com/alexpasmantier/television/releases/download/${tv_ver}/television-${tv_ver}-${arch_tv}-unknown-linux-gnu.tar.gz"
-        tar xzf /tmp/tv.tar.gz -C /tmp
-        sudo mv /tmp/tv /usr/local/bin/tv
-        rm -f /tmp/tv.tar.gz
-    fi
-
-    # bottom — from GitHub releases
-    if ! command_exists btm; then
-        info "Installing bottom..."
-        local arch_bt="x86_64"
-        if [ "$(uname -m)" = "aarch64" ]; then arch_bt="aarch64"; fi
-        local bt_ver
-        bt_ver=$(curl -sL https://api.github.com/repos/ClementTsang/bottom/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-        curl -sLo /tmp/bottom.tar.gz "https://github.com/ClementTsang/bottom/releases/download/${bt_ver}/bottom_${arch_bt}-unknown-linux-gnu.tar.gz"
-        tar xzf /tmp/bottom.tar.gz -C /tmp btm
-        sudo mv /tmp/btm /usr/local/bin/btm
-        rm -f /tmp/bottom.tar.gz
     fi
 
     # AWS CLI v2 — official installer
@@ -577,6 +444,23 @@ create_symlinks() {
 }
 
 # -----------------------------------------------------------------------------
+# Install CLI tools declared in mise/config.toml (delta, lazygit, lazydocker,
+# yq, hyperfine, difftastic, gitleaks, tree-sitter, yazi, television, bottom,
+# plus python/node/go). Runs after create_symlinks so mise picks up the
+# symlinked ~/.config/mise/config.toml as its global config.
+# -----------------------------------------------------------------------------
+install_mise_tools() {
+    if ! command_exists mise; then
+        warn "mise not found, skipping mise-managed tool install"
+        return
+    fi
+
+    info "Installing tools declared in mise/config.toml (checksum-verified)..."
+    mise install -y
+    success "mise tools installed"
+}
+
+# -----------------------------------------------------------------------------
 # Install zinit (zsh plugin manager)
 # -----------------------------------------------------------------------------
 install_zinit() {
@@ -651,6 +535,9 @@ main() {
 
     # Needs the symlinked ~/.gitconfig in place so user.email resolves
     setup_allowed_signers
+
+    # Needs the symlinked ~/.config/mise/config.toml in place
+    install_mise_tools
 
     # Install plugin managers
     install_zinit

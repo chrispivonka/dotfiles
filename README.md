@@ -591,11 +591,11 @@ dotfiles/
 │       ├── keymaps.lua
 │       ├── lazy-bootstrap.lua
 │       └── plugins/
-│           ├── telescope.lua   # snacks.nvim (picker + indent + lazygit + terminal + more)
+│           ├── snacks.lua      # snacks.nvim (picker + explorer + indent + lazygit + terminal + more)
 │           ├── treesitter.lua
 │           ├── lsp.lua         # mason, blink.cmp, conform.nvim
 │           ├── ui.lua          # github-nvim-theme, lualine, gitsigns, mini.icons
-│           ├── editor.lua      # neo-tree, which-key, flash, lazydev, todo-comments
+│           └── editor.lua      # autopairs, which-key, flash, lazydev, todo-comments
 ├── ghostty/
 │   └── config              # -> ~/Library/Application Support/com.mitchellh.ghostty/config (macOS)
 │                           #    or ~/.config/ghostty/config (Linux)
