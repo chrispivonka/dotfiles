@@ -6,8 +6,8 @@
 # .mise.toml or .tool-versions file is present.
 
 [tools]
-python = "3.13"
-node = "lts"
+python = "latest"
+node = "latest"
 go = "latest"
 rust = "latest"
 
@@ -34,7 +34,6 @@ vivid = "latest"
 
 [settings]
 experimental = true
-always_keep_download = false
 always_keep_install = false
 # Activate tools automatically when entering a directory
 activate_aggressive = false
