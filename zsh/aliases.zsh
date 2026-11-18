@@ -109,6 +109,15 @@ command -v lazydocker &>/dev/null && alias ld='lazydocker'
 # yazi
 command -v yazi &>/dev/null && alias yz='yazi'
 
+# --- OrbStack (Docker runtime on macOS) -------------------------------------
+# Puts OrbStack's docker CLI and credential helpers on PATH. Prefer OrbStack's
+# own shell init when it exists; otherwise fall back to the app bundle's bins.
+if [[ -r ~/.orbstack/shell/init.zsh ]]; then
+    source ~/.orbstack/shell/init.zsh 2>/dev/null
+elif [[ -d /Applications/OrbStack.app/Contents/MacOS/xbin ]]; then
+    path=(/Applications/OrbStack.app/Contents/MacOS/xbin /Applications/OrbStack.app/Contents/MacOS/bin $path)
+fi
+
 # --- Docker aliases ----------------------------------------------------------
 alias d='docker'
 alias dc='docker compose'

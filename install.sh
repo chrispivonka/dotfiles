@@ -97,7 +97,7 @@ install_packages_macos() {
     fi
 
     # OrbStack (Docker runtime — lightweight Docker Desktop replacement)
-    if ! command_exists docker; then
+    if [ ! -d /Applications/OrbStack.app ]; then
         info "Installing OrbStack..."
         brew install --cask orbstack 2>/dev/null || true
     fi
